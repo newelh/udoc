@@ -75,15 +75,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: msrv-1.88
-      - name: Check workspace at 1.88 (excluding udoc-py)
-        run: cargo check --workspace --exclude udoc-py --all-features
-      - name: Install Rust 1.83 (udoc-py MSRV from pyo3 0.28)
-        uses: dtolnay/rust-toolchain@1.83
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: msrv-1.83
-      - name: Check udoc-py at 1.83
-        run: cargo check -p udoc-py
+      - name: Check workspace at 1.88
+        run: cargo check --workspace --all-features
 
   doc:
     name: Doc build
