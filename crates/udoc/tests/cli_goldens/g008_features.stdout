@@ -1,8 +1,0 @@
-udoc 0.1.0-alpha.1 compile-time features
-Feature                 Enabled   Kind    
-tier1-fonts             yes       build   
-tier1-serif-bold        yes       build   
-tier1-sans-bold         yes       build   
-cjk-fonts               no        build   
-jbig2                   yes       build   
-strict_fonts            no        runtime 

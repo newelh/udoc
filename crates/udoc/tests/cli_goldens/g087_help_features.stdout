@@ -1,8 +1,0 @@
-Print the compile-time feature report for this `udoc` binary (tier1 font bundles, CJK fallback, own JBIG2 decoder, etc.). Operators use this to confirm "why did feature X not fire?" maps to "the binary was built without -F X" vs a runtime misconfig
-
-Usage: udoc features [OPTIONS]
-
-Options:
-  -o, --output <FILE>    Write the report here instead of stdout
-      --format <FORMAT>  Output format: `text` (default) or `json` [default: text]
-  -h, --help             Print help

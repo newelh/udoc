@@ -1,2 +1,0 @@
-hook /home/me/projects/undoc-build/py/crates/udoc/tests/cli_goldens/inputs/hooks/echo-hook.sh: timed out reading handshake, killing unresponsive hook process
-udoc: running hooks: all hook invocations failed (<INPUT>)

@@ -1,8 +1,0 @@
-Analysis of Multi-Column Document Layouts in Practice
-The study examines how columns Related work covers many areas
-are used in modern documents Prior studies found mixed results
-Results show clear patterns here Our method improves on baselines
-Many layouts use two columns now The data was collected last year
-This approach saves paper space Statistical tests confirm gains
-Readers prefer columnar layouts Future work will expand the scope
-Page 1 of 1 -- Conference on Document Analysis 2026

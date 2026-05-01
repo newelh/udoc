@@ -1,3 +1,0 @@
-TABLE 0 (2 rows, 3 cols, TextAlignment)
-Name|Age|City
-Alice|30|NYC

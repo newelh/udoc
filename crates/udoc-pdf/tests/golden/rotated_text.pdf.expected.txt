@@ -1,5 +1,0 @@
-Horizontal line one
-Horizontal line two
-Horizontal line three
-Rotated upward
-Rotated second

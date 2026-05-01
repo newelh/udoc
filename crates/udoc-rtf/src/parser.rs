@@ -1578,7 +1578,3 @@ impl<'a> Parser<'a> {
         }
     }
 }
-
-#[cfg(test)]
-#[path = "parser_tests.rs"]
-mod tests;

@@ -1,4 +1,0 @@
-TABLE 0 (3 rows, 3 cols, RuledLine)
-A|B|C
-D|E|F
-G|H|I

@@ -1,4 +1,0 @@
-This is invisible OCR text on a scanned page
-The quick brown fox jumps over the lazy dog
-Page numbers and headers are also invisible
-A real OCR layer would overlay a scanned image

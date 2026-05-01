@@ -1,6 +1,0 @@
-Quick links The main content area has much more room for text here
-Section one This allows for longer sentences and paragraphs in the body
-Section two Important details are presented in the wider column right side
-Section three Figures and tables would appear alongside this text normally
-References here Cross references point to the sidebar navigation on the left
-Index at end The conclusion summarizes all findings from this full document

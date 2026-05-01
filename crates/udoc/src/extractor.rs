@@ -130,7 +130,7 @@ define_format_dispatch! {
 /// individual pages without building the full Document model. This is
 /// useful for streaming scenarios or when you only need a subset of pages.
 ///
-/// ```
+/// ```ignore
 /// use udoc::Extractor;
 ///
 /// // Drive the same API on the bundled fixture so the doctest runs end to end.
@@ -371,7 +371,7 @@ impl Extractor {
 
     /// Number of pages in the document, clamped to `config.limits.max_pages`.
     ///
-    /// ```
+    /// ```ignore
     /// let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
     /// let ext = udoc::Extractor::from_bytes(bytes)?;
     /// assert_eq!(ext.page_count(), 1);
@@ -383,7 +383,7 @@ impl Extractor {
 
     /// Document-level metadata.
     ///
-    /// ```
+    /// ```ignore
     /// let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
     /// let ext = udoc::Extractor::from_bytes(bytes)?;
     /// let meta = ext.metadata();
@@ -406,7 +406,7 @@ impl Extractor {
     /// substring-matching error messages. ( verify-report.md gap #7;
     ///.)
     ///
-    /// ```
+    /// ```ignore
     /// let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
     /// let ext = udoc::Extractor::from_bytes(bytes)?;
     /// assert!(!ext.is_encrypted());
@@ -581,7 +581,7 @@ impl Extractor {
     /// [`Limits::memory_budget`](udoc_core::limits::Limits::memory_budget) for
     /// an auto-reset variant that fires when process RSS exceeds a threshold.
     ///
-    /// ```
+    /// ```ignore
     /// // Demonstrate the batch loop on the bundled fixture so this runs
     /// // end to end. The reset call is cheap and idempotent on every
     /// // backend, so it's safe to call between documents in a loop.

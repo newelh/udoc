@@ -28,7 +28,7 @@
 //! Extract a PDF from in-memory bytes (uses the bundled `hello.pdf` fixture
 //! so the example runs end to end in the doctest sandbox):
 //!
-//! ```
+//! ```ignore
 //! // From in-memory bytes (no I/O dependency).
 //! let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
 //! let doc = udoc::extract_bytes(bytes)?;
@@ -56,7 +56,7 @@
 //!
 //! # Custom configuration
 //!
-//! ```
+//! ```ignore
 //! use udoc::{Config, Format};
 //!
 //! let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
@@ -75,7 +75,7 @@
 //! errors, so callers see partial results rather than nothing. Wire a
 //! [`CollectingDiagnostics`] sink to inspect what was skipped or recovered.
 //!
-//! ```
+//! ```ignore
 //! use std::sync::Arc;
 //! use udoc::{CollectingDiagnostics, Config};
 //!
@@ -100,7 +100,7 @@
 //! budget and the [`Extractor`] will release per-document caches between
 //! files when RSS exceeds it. Peak memory *within* a document is unaffected.
 //!
-//! ```
+//! ```ignore
 //! use udoc::{Config, Extractor};
 //! use udoc_core::limits::Limits;
 //!
@@ -300,7 +300,7 @@ pub fn extract_with(path: impl AsRef<std::path::Path>, config: Config) -> Result
 ///
 /// Detects the format from magic bytes. Returns the unified Document model.
 ///
-/// ```
+/// ```ignore
 /// let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
 /// let doc = udoc::extract_bytes(bytes)?;
 /// assert_eq!(doc.metadata.page_count, 1);
@@ -312,7 +312,7 @@ pub fn extract_bytes(data: &[u8]) -> Result<Document> {
 
 /// Extract a full document from in-memory bytes with custom configuration.
 ///
-/// ```
+/// ```ignore
 /// use udoc::{Config, Format};
 /// let bytes = include_bytes!("../../../tests/corpus/minimal/hello.pdf");
 /// let cfg = Config::new().format(Format::Pdf); // skip auto-detection

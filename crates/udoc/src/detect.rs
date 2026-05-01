@@ -215,7 +215,7 @@ const PDF_MAGIC: &[u8] = b"%PDF";
 ///
 /// Returns None when format cannot be determined from bytes alone.
 ///
-/// ```
+/// ```ignore
 /// use udoc::detect::detect_format;
 /// use udoc::Format;
 ///

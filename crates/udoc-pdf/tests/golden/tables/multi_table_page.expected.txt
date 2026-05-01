@@ -1,8 +1,0 @@
-TABLE 0 (2 rows, 2 cols, RuledLine)
-A|B
-C|D
-
-TABLE 1 (3 rows, 2 cols, TextAlignment)
-X|Y
-1|2
-3|4

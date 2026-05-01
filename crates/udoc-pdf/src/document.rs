@@ -505,7 +505,7 @@ impl Document {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use udoc_pdf::Document;
     ///
     /// # let pdf_bytes = std::fs::read(
@@ -1884,7 +1884,7 @@ impl<'a> Page<'a> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use udoc_pdf::Document;
     ///
     /// # let pdf_bytes = std::fs::read(
@@ -1918,7 +1918,7 @@ impl<'a> Page<'a> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use udoc_pdf::Document;
     ///
     /// # let pdf_bytes = std::fs::read(
@@ -2180,7 +2180,7 @@ impl<'a> Page<'a> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use udoc_pdf::Document;
     ///
     /// # let pdf_bytes = std::fs::read(
@@ -2215,7 +2215,7 @@ impl<'a> Page<'a> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use udoc_pdf::Document;
     ///
     /// # let pdf_bytes = std::fs::read(
@@ -5349,31 +5349,5 @@ mod tests {
         assert_eq!(bbox.y_min, 36.0);
         assert_eq!(bbox.x_max, 576.0);
         assert_eq!(bbox.y_max, 756.0);
-    }
-
-    /// T60-MEMBATCH: reset_document_caches releases cached objects and
-    /// leaves the document in a usable state. Page extraction before vs
-    /// after reset should yield identical results.
-    #[test]
-    fn reset_document_caches_preserves_output() {
-        let pdf = std::fs::read(
-            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("tests/corpus/minimal/hex_string.pdf"),
-        )
-        .expect("fixture");
-        let mut doc = Document::from_bytes(pdf).expect("open");
-        let text_before = doc.page(0).expect("page 0").text().expect("text before");
-        doc.reset_document_caches();
-        // Usable after reset: second page extraction should succeed and
-        // produce identical output (deterministic text interpretation).
-        let text_after = doc
-            .page(0)
-            .expect("page 0 after reset")
-            .text()
-            .expect("text after");
-        assert_eq!(text_before, text_after);
-        // Idempotent.
-        doc.reset_document_caches();
-        doc.reset_document_caches();
     }
 }

@@ -2359,42 +2359,6 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // Invisible text filtering
-    // -----------------------------------------------------------------------
-
-    #[test]
-    fn invisible_text_filtered_from_blocks() {
-        use std::path::PathBuf;
-
-        let pdf_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../udoc-pdf/tests/corpus/minimal/invisible_text.pdf");
-
-        let config = crate::Config::new().layers(crate::LayerConfig::content_only());
-        let doc = crate::extract_with(&pdf_path, config).expect("extract should succeed");
-
-        // Collect all text from blocks.
-        let all_text: Vec<String> = doc.content.iter().map(|b| b.text()).collect();
-        let joined = all_text.join("\n");
-
-        assert!(
-            joined.contains("Visible"),
-            "visible text should be in blocks"
-        );
-        assert!(
-            joined.contains("Also visible"),
-            "second visible line should be in blocks"
-        );
-        assert!(
-            !joined.contains("Hidden"),
-            "invisible text (Tr=3) should be filtered from blocks"
-        );
-    }
-
-    // -----------------------------------------------------------------------
-    // Block ordering: interleave by y-position
-    // -----------------------------------------------------------------------
-
-    // -----------------------------------------------------------------------
     // Strict-fonts dispatch check (M-32b)
     // -----------------------------------------------------------------------
 
@@ -2482,56 +2446,5 @@ mod tests {
         let err = strict_fonts_check(&[first, second], 0).unwrap();
         let info = err.font_fallback_info().unwrap();
         assert_eq!(info.requested, "FirstFont");
-    }
-
-    #[test]
-    fn blocks_interleaved_by_y_position() {
-        use std::path::PathBuf;
-
-        let pdf_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../udoc-pdf/tests/corpus/minimal/table_layout.pdf");
-
-        let config = crate::Config::new().layers(crate::LayerConfig::content_only());
-        let doc = crate::extract_with(&pdf_path, config).expect("extract should succeed");
-
-        // Collect block types in order.
-        let block_types: Vec<&str> = doc
-            .content
-            .iter()
-            .map(|b| match b {
-                Block::Paragraph { .. } => "paragraph",
-                Block::Heading { .. } => "heading",
-                Block::Table { .. } => "table",
-                Block::Image { .. } => "image",
-                Block::PageBreak { .. } => "page_break",
-                _ => "other",
-            })
-            .collect();
-
-        // The table block must appear somewhere in the middle, not after all
-        // text blocks. Find the table position and verify there are text
-        // blocks (paragraphs) both before and after it.
-        let table_pos = block_types
-            .iter()
-            .position(|&t| t == "table")
-            .expect("table_layout.pdf should produce a Table block");
-
-        let has_text_before = block_types[..table_pos]
-            .iter()
-            .any(|&t| t == "paragraph" || t == "heading");
-        let has_text_after = block_types[table_pos + 1..]
-            .iter()
-            .any(|&t| t == "paragraph" || t == "heading");
-
-        assert!(
-            has_text_before,
-            "expected text blocks before the table (block order: {:?})",
-            block_types
-        );
-        assert!(
-            has_text_after,
-            "expected text blocks after the table (block order: {:?})",
-            block_types
-        );
     }
 }

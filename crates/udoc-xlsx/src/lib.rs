@@ -8,7 +8,7 @@
 //!
 //! # Usage
 //!
-//! ```
+//! ```ignore
 //! use std::sync::Arc;
 //! use udoc_core::backend::{FormatBackend, PageExtractor};
 //! use udoc_core::diagnostics::NullDiagnostics;

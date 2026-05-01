@@ -57,14 +57,6 @@ harness = false
 name = "interpreter"
 harness = false
 
-[[bench]]
-name = "end_to_end"
-harness = false
-
-[[bench]]
-name = "table"
-harness = false
-
 [lints]
 workspace = true
 

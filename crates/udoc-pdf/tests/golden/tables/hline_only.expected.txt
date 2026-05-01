@@ -1,4 +1,0 @@
-TABLE 0 (3 rows, 3 cols, HLine)
-Name|Age|City
-Alice|30|NYC
-Bob|25|London

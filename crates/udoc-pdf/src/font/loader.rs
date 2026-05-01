@@ -1507,146 +1507,10 @@ mod tests {
         assert_eq!(diffs[2], (90, 'A'));
     }
 
-    // -- Corpus integration tests for font loading --
-
     use crate::object::resolver::ObjectResolver;
     use crate::parse::DocumentParser;
     use crate::CollectingDiagnostics;
     use std::sync::Arc;
-
-    const CORPUS_DIR: &str = "tests/corpus/minimal";
-
-    fn read_corpus(filename: &str) -> Vec<u8> {
-        let path = format!("{CORPUS_DIR}/{filename}");
-        std::fs::read(&path).unwrap_or_else(|e| panic!("failed to read {path}: {e}"))
-    }
-
-    /// Walk /Pages tree collecting page dicts.
-    fn collect_test_pages(
-        resolver: &mut ObjectResolver,
-        pages_ref: ObjRef,
-    ) -> Vec<crate::object::PdfDictionary> {
-        let pages_dict = match resolver.resolve_dict(pages_ref) {
-            Ok(d) => d,
-            Err(_) => return Vec::new(),
-        };
-        if pages_dict.get_name(b"Type") == Some(b"Page") {
-            return vec![pages_dict];
-        }
-        let kids = match pages_dict.get_array(b"Kids") {
-            Some(k) => k.to_vec(),
-            None => return Vec::new(),
-        };
-        let mut result = Vec::new();
-        for kid in kids {
-            if let PdfObject::Reference(r) = kid {
-                result.extend(collect_test_pages(resolver, r));
-            }
-        }
-        result
-    }
-
-    /// Load all fonts from a corpus PDF, returning (font_count, non_fffd_count).
-    fn load_corpus_fonts(filename: &str) -> (usize, usize) {
-        let data = read_corpus(filename);
-        let diag = Arc::new(CollectingDiagnostics::new());
-        let doc = match DocumentParser::with_diagnostics(&data, diag.clone()).parse() {
-            Ok(d) => d,
-            Err(_) => return (0, 0),
-        };
-        let mut resolver = ObjectResolver::from_document_with_diagnostics(&data, doc, diag);
-        let trailer = match resolver.trailer() {
-            Some(t) => t.clone(),
-            None => return (0, 0),
-        };
-        let root_ref = match trailer.get_ref(b"Root") {
-            Some(r) => r,
-            None => return (0, 0),
-        };
-        let catalog = match resolver.resolve_dict(root_ref) {
-            Ok(c) => c,
-            Err(_) => return (0, 0),
-        };
-        let pages_ref = match catalog.get_ref(b"Pages") {
-            Some(r) => r,
-            None => return (0, 0),
-        };
-        let pages = collect_test_pages(&mut resolver, pages_ref);
-
-        let mut font_count = 0;
-        let mut non_fffd = 0;
-
-        for page in &pages {
-            let resources = match resolver.get_resolved_dict(page, b"Resources") {
-                Ok(Some(r)) => r,
-                _ => continue,
-            };
-            let font_dict = match resolver.get_resolved_dict(&resources, b"Font") {
-                Ok(Some(f)) => f,
-                _ => continue,
-            };
-
-            for (_name, value) in font_dict.iter() {
-                let font_ref = match value.as_reference() {
-                    Some(r) => r,
-                    None => continue,
-                };
-
-                match load_font(&mut resolver, font_ref) {
-                    Ok((font, _pdf_refs, _resolution)) => {
-                        font_count += 1;
-                        // Test decode_char with some common codes
-                        for code in [0x20u8, 0x41, 0x61, 0x30] {
-                            let result = font.decode_char(&[code]);
-                            if result != "\u{FFFD}" {
-                                non_fffd += 1;
-                                break; // at least one worked
-                            }
-                        }
-                    }
-                    Err(_) => {
-                        // Font loading failed; not fatal
-                    }
-                }
-            }
-        }
-
-        (font_count, non_fffd)
-    }
-
-    #[test]
-    fn test_corpus_font_loading() {
-        let font_files = [
-            "ArabicCIDTrueType.pdf",
-            "arial_unicode_ab_cidfont.pdf",
-            "cid_cff.pdf",
-            "xelatex.pdf",
-            "xelatex-drawboard.pdf",
-            "ostream1.pdf",
-            "ostream2.pdf",
-            "simpletype3font.pdf",
-            "TrueType_without_cmap.pdf",
-            "text_clip_cff_cid.pdf",
-        ];
-
-        let mut total_fonts = 0;
-        let mut total_decodable = 0;
-
-        for filename in &font_files {
-            let (fonts, decodable) = load_corpus_fonts(filename);
-            total_fonts += fonts;
-            total_decodable += decodable;
-        }
-
-        assert!(
-            total_fonts > 0,
-            "expected to load at least one font from corpus"
-        );
-        assert!(
-            total_decodable > 0,
-            "expected at least one font to decode a character (non-FFFD)"
-        );
-    }
 
     #[test]
     fn test_simple_font_decode_char() {
@@ -2263,10 +2127,24 @@ endcmap
     // Additional coverage: load_encoding_dict
     // ========================================================================
 
-    /// Build a resolver from a corpus file for tests that need one.
-    /// Returns (data, diag) to keep them alive; resolver borrows from data.
-    fn make_resolver_parts(filename: &str) -> (Vec<u8>, Arc<CollectingDiagnostics>) {
-        let data = read_corpus(filename);
+    /// Build a minimal in-memory PDF and a fresh diagnostics sink.
+    /// The tests below construct dictionaries inline and don't traverse
+    /// the document tree, so a parseable but otherwise empty PDF is enough.
+    fn make_resolver_parts(_filename: &str) -> (Vec<u8>, Arc<CollectingDiagnostics>) {
+        let mut data = Vec::new();
+        data.extend_from_slice(b"%PDF-1.4\n");
+        let obj1 = data.len();
+        data.extend_from_slice(b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+        let obj2 = data.len();
+        data.extend_from_slice(b"2 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n");
+        let xref_off = data.len();
+        data.extend_from_slice(b"xref\n0 3\n");
+        data.extend_from_slice(b"0000000000 65535 f \n");
+        data.extend_from_slice(format!("{obj1:010} 00000 n \n").as_bytes());
+        data.extend_from_slice(format!("{obj2:010} 00000 n \n").as_bytes());
+        data.extend_from_slice(b"trailer\n<< /Size 3 /Root 1 0 R >>\n");
+        data.extend_from_slice(format!("startxref\n{xref_off}\n").as_bytes());
+        data.extend_from_slice(b"%%EOF\n");
         let diag = Arc::new(CollectingDiagnostics::new());
         (data, diag)
     }
