@@ -1920,10 +1920,7 @@ mod cli_flags_tests {
     /// Bare `-L` resolves to Layout, even with no `--out` flag at all.
     #[test]
     fn resolve_out_mode_layout_shortcut() {
-        assert_eq!(
-            resolve_out_mode(None, true).unwrap(),
-            OutputMode::Layout
-        );
+        assert_eq!(resolve_out_mode(None, true).unwrap(), OutputMode::Layout);
     }
 
     /// `-L` plus `--out layout` is fine (redundant but consistent).

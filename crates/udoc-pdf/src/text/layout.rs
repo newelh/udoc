@@ -50,63 +50,125 @@ impl Default for LayoutOptions {
     }
 }
 
-/// Project text spans onto a monospace grid sized to `opts.columns` and
-/// emit the grid as a string. Each row is right-trimmed; trailing blank
-/// rows on the page are dropped.
+/// Project text spans onto a monospace grid sized to `opts.columns`
+/// and emit the grid as a string. Each row is right-trimmed.
 ///
-/// Spans are bucketed by row (computed from their baseline) and within
-/// each row sorted left-to-right. Each span's chars occupy consecutive
-/// cells starting at the span's PDF-derived column, with a minimum
-/// one-cell gap from the previous span on the same row. This preserves
-/// column boundaries for tabular content and prevents adjacent spans
-/// from colliding.
+/// Spans are first clustered into visual lines by baseline proximity
+/// (so tightly-leaded text doesn't collide on a fixed row grid), then
+/// within each line sorted left-to-right. Adjacent spans concatenate
+/// without a forced inter-span gap when their PDF positions are
+/// touching, so a word fragmented across spans (e.g. "Pro" + "vided")
+/// reads as one word; spans with real PDF whitespace between them
+/// still appear separated.
 ///
 /// Spans flagged `is_invisible` are skipped. With `opts.skip_rotated`,
 /// spans whose rotation differs from horizontal are also skipped.
 pub fn render_layout(spans: &[TextSpan], opts: &LayoutOptions) -> String {
-    use std::collections::BTreeMap;
+    use std::cmp::Ordering;
 
     let page_w = opts.page_bbox.width();
     let cols = opts.columns.max(1);
     let pts_per_col = page_w / cols as f64;
-    let pts_per_row = opts.points_per_row.max(1.0);
 
-    if !pts_per_col.is_finite() || pts_per_col <= 0.0 || !pts_per_row.is_finite() {
+    if !pts_per_col.is_finite() || pts_per_col <= 0.0 {
         return String::new();
     }
 
-    // Bucket spans by row. Within a row the original order is unstable
-    // (content stream order isn't visual order), so we resort by x below.
-    let mut by_row: BTreeMap<usize, Vec<&TextSpan>> = BTreeMap::new();
-    for span in spans {
-        if span.is_invisible || span.text.is_empty() {
-            continue;
-        }
-        if opts.skip_rotated && span.rotation.abs() > 0.5 {
-            continue;
-        }
-
-        // PDF y-axis is bottom-origin; flip to top-origin row index.
-        let y_top = opts.page_bbox.y_max - span.y;
-        let row_f = y_top / pts_per_row;
-        if !row_f.is_finite() || row_f < 0.0 {
-            continue;
-        }
-        by_row.entry(row_f.round() as usize).or_default().push(span);
+    // Filter once. Iterating a `Vec<&TextSpan>` keeps the renderer
+    // allocation-light without re-checking flags on each visit.
+    let mut filtered: Vec<&TextSpan> = spans
+        .iter()
+        .filter(|s| !s.is_invisible && !s.text.is_empty())
+        .filter(|s| !opts.skip_rotated || s.rotation.abs() <= 0.5)
+        .collect();
+    if filtered.is_empty() {
+        return String::new();
     }
 
-    let max_row = by_row.keys().copied().max().unwrap_or(0);
-    let mut grid: Vec<Vec<char>> = vec![Vec::new(); max_row + 1];
+    // Sort by y descending so we walk the page from top to bottom.
+    // PDF y-axis is bottom-origin: higher y = closer to top.
+    filtered.sort_by(|a, b| b.y.partial_cmp(&a.y).unwrap_or(Ordering::Equal));
 
-    for (row, mut row_spans) in by_row {
-        row_spans.sort_by(|a, b| a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal));
+    // Cluster into visual lines. Two spans are on the same line if
+    // their baselines are within `tolerance` PDF points -- a fraction
+    // of the smaller font size. This handles superscripts and
+    // mixed-size lines without collapsing adjacent prose lines.
+    let mut lines: Vec<Vec<&TextSpan>> = Vec::new();
+    let mut current: Vec<&TextSpan> = Vec::new();
+    let mut current_y = f64::NAN;
+    for span in filtered {
+        let tolerance = (span.font_size.max(6.0)) * 0.4;
+        if current.is_empty() || (current_y - span.y).abs() <= tolerance {
+            current_y = if current.is_empty() {
+                span.y
+            } else {
+                // Smooth the cluster's reference y as it grows so a long
+                // run of small descenders doesn't drift past tolerance.
+                (current_y * current.len() as f64 + span.y) / (current.len() + 1) as f64
+            };
+            current.push(span);
+        } else {
+            lines.push(std::mem::take(&mut current));
+            current.push(span);
+            current_y = span.y;
+        }
+    }
+    if !current.is_empty() {
+        lines.push(current);
+    }
 
-        let line = &mut grid[row];
-        let mut next_min_col: usize = 0;
+    // Compute the row stride from the median observed line gap so the
+    // output's vertical density matches the document's actual leading.
+    // Falls back to `opts.points_per_row` for single-line pages.
+    let pts_per_row = if lines.len() < 2 {
+        opts.points_per_row.max(1.0)
+    } else {
+        let mut gaps: Vec<f64> = lines
+            .windows(2)
+            .filter_map(|w| {
+                let a = w[0].first()?.y;
+                let b = w[1].first()?.y;
+                let g = a - b;
+                if g.is_finite() && g > 0.0 {
+                    Some(g)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        gaps.sort_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal));
+        let median = gaps
+            .get(gaps.len() / 2)
+            .copied()
+            .unwrap_or(opts.points_per_row);
+        median.max(1.0)
+    };
 
-        for span in row_spans {
-            let chars: Vec<char> = span.text.chars().collect();
-            if chars.is_empty() {
+    // Map each line to a row index by y delta from the page top.
+    let mut output: Vec<String> = Vec::new();
+    for line in lines.iter_mut() {
+        line.sort_by(|a, b| a.x.partial_cmp(&b.x).unwrap_or(Ordering::Equal));
+
+        let line_y = line[0].y;
+        let y_top = opts.page_bbox.y_max - line_y;
+        let target_row_f = y_top / pts_per_row;
+        if !target_row_f.is_finite() || target_row_f < 0.0 {
+            continue;
+        }
+        let target_row = target_row_f.round() as usize;
+
+        // Pad with blank rows up to the target.
+        while output.len() < target_row {
+            output.push(String::new());
+        }
+
+        // Lay out spans on this line.
+        let mut chars: Vec<char> = Vec::new();
+        let mut next_min: usize = 0;
+        let mut prev_end_pdf: Option<f64> = None;
+        for span in line.iter() {
+            let span_chars: Vec<char> = span.text.chars().collect();
+            if span_chars.is_empty() {
                 continue;
             }
 
@@ -115,23 +177,53 @@ pub fn render_layout(spans: &[TextSpan], opts: &LayoutOptions) -> String {
             if !col_f.is_finite() || col_f < 0.0 {
                 continue;
             }
-            // Honor the PDF position when there's room, otherwise push
-            // past the previous span. The +1 keeps at least a single
-            // space between adjacent spans even when their PDF positions
-            // round to the same cell.
-            let start = (col_f.round() as usize).max(next_min_col);
-
-            for (i, ch) in chars.iter().enumerate() {
-                write_at(line, start + i, *ch);
+            // Distinguish two cases of consecutive spans:
+            //   * Word fragments ("Pro" + "vided"): the next span's
+            //     start touches or sits inside the previous span's
+            //     advance. Concatenate -- a forced gap fragments the
+            //     word.
+            //   * Word breaks ("Provided" + "proper"): there's a real
+            //     PDF whitespace gap between the spans. Force at
+            //     least one cell of space so the words read distinct.
+            // Word-spaces in real PDFs are roughly 0.25 * font_size
+            // (~2.75pt at 11pt body); 1pt is a conservative absolute
+            // floor that catches them while still letting kerning
+            // micro-adjustments fall through to concatenation.
+            let mut start = col_f.round() as usize;
+            if let Some(prev_end) = prev_end_pdf {
+                let pdf_gap = span.x - prev_end;
+                let min_safe = if pdf_gap > 1.0 {
+                    next_min + 1
+                } else {
+                    next_min
+                };
+                start = start.max(min_safe);
             }
-            next_min_col = start + chars.len() + 1;
+
+            for (i, ch) in span_chars.iter().enumerate() {
+                write_at(&mut chars, start + i, *ch);
+            }
+            next_min = start + span_chars.len();
+            prev_end_pdf = Some(span.x + span.width);
+        }
+
+        let row_str: String = chars.iter().collect::<String>().trim_end().to_string();
+        if output.len() == target_row {
+            output.push(row_str);
+        } else {
+            // Multiple visual lines hashed to the same row index --
+            // happens when median gap rounding differs from a specific
+            // line's actual gap. Append to the existing row instead of
+            // overwriting it.
+            let existing = output.last_mut().unwrap();
+            if !existing.is_empty() && !row_str.is_empty() {
+                existing.push(' ');
+            }
+            existing.push_str(&row_str);
         }
     }
 
-    grid.iter()
-        .map(|line| line.iter().collect::<String>().trim_end().to_string())
-        .collect::<Vec<_>>()
-        .join("\n")
+    output.join("\n")
 }
 
 fn write_at(line: &mut Vec<char>, pos: usize, ch: char) {
@@ -312,5 +404,79 @@ mod tests {
         let span = span_at("Hi", 60.0, 780.0, 12.0);
         // Either renders (after clamping) or returns empty; never panics.
         let _ = render_layout(&[span], &opts);
+    }
+
+    #[test]
+    fn touching_spans_concatenate_without_gap() {
+        // PDF often emits a single word as multiple Tj operations:
+        // "Pro" + "vided" both at the same baseline, second span
+        // starting where the first ends. Output should read
+        // "Provided", not "Pro vided".
+        // span1: x=60, width=18 (3 chars * 6pt advance)
+        // span2: x=78 (touching), width=30 (5 chars * 6pt advance)
+        let spans = vec![
+            span_at("Pro", 60.0, 780.0, 18.0),
+            span_at("vided", 78.0, 780.0, 30.0),
+        ];
+        let out = render_layout(&spans, &letter_opts());
+        assert!(
+            out.contains("Provided"),
+            "touching spans must concatenate: {out:?}",
+        );
+        assert!(!out.contains("Pro vided"), "no artificial gap: {out:?}",);
+    }
+
+    #[test]
+    fn spans_with_real_pdf_gap_get_at_least_one_space() {
+        // Two distinct words separated by a real PDF whitespace gap
+        // must read as two words on output.
+        // span1 "Provided": x=60, width=48 (8*6) → ends at 108
+        // span2 "proper":   x=114 (6pt gap = real space), width=36
+        let spans = vec![
+            span_at("Provided", 60.0, 780.0, 48.0),
+            span_at("proper", 114.0, 780.0, 36.0),
+        ];
+        let out = render_layout(&spans, &letter_opts());
+        assert!(
+            out.contains("Provided proper") || out.contains("Provided  proper"),
+            "real PDF gap must produce visible whitespace: {out:?}",
+        );
+    }
+
+    #[test]
+    fn tight_leading_does_not_collapse_lines() {
+        // Two lines just 8pt apart (tighter than the 12pt default
+        // points_per_row). Adaptive line clustering should still
+        // separate them rather than collapsing to one row.
+        let spans = vec![
+            span_at("Line one", 60.0, 780.0, 48.0),
+            span_at("Line two", 60.0, 772.0, 48.0),
+        ];
+        let out = render_layout(&spans, &letter_opts());
+        let one = out.lines().find(|l| l.contains("one")).unwrap_or("");
+        let two = out.lines().find(|l| l.contains("two")).unwrap_or("");
+        // They must be on separate output lines.
+        assert!(!one.contains("two"), "lines collapsed: {out:?}");
+        assert!(!two.contains("one"), "lines collapsed: {out:?}");
+    }
+
+    #[test]
+    fn baseline_clustering_groups_superscripts() {
+        // A footnote marker rendered above the baseline (e.g. ∗)
+        // must stay on the same visual line as its anchor word, not
+        // be promoted to a separate row.
+        let star = span_at("∗", 108.0, 783.0, 4.0); // ~3pt above baseline 780
+        let mut star_span = star;
+        star_span.font_size = 8.0; // smaller font for the star
+        let spans = vec![span_at("Vaswani", 60.0, 780.0, 48.0), star_span];
+        let out = render_layout(&spans, &letter_opts());
+        let line = out
+            .lines()
+            .find(|l| l.contains("Vaswani"))
+            .expect("found Vaswani line");
+        assert!(
+            line.contains('∗'),
+            "superscript ∗ must stay on the same row as Vaswani: {line:?}",
+        );
     }
 }
