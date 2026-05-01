@@ -14,9 +14,17 @@ arxiv using [uv](https://docs.astral.sh/uv/), no install required:
 
 ```bash
 curl -sL https://arxiv.org/pdf/1706.03762 \
-  | uvx --index-url https://newelh.github.io/udoc/simple/ udoc - \
-  | grep -A 18 '^Abstract'
+  | uvx --index-url https://newelh.github.io/udoc/simple/ udoc -L - \
+  | grep -A 18 'Abstract'
 ```
+
+`-L` is layout mode: udoc projects each glyph onto a monospace
+grid using its PDF coordinates, the same way `pdftotext -layout`
+does. Columns, indentation, and tabular alignment survive the
+trip from PDF to terminal, so the abstract reads as a properly
+indented paragraph rather than a flat run of prose. Drop the
+flag for default text mode when you want a compact stream for
+`grep`, `wc`, or `jq`.
 
 [`uvx`](https://docs.astral.sh/uv/) runs udoc in an ephemeral
 environment; the rest is plain shell. The same shape works for any
