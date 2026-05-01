@@ -1,0 +1,405 @@
+Lila: Decentralized Build Reproducibility Monitoring for the
+Functional Package Management Model
+Julien Malka Arnout Engelen
+julien.malka@telecom-paris.fr arnout@bzzt.net
+LTCI, Télécom Paris, Institut Polytechnique de Paris
+Palaiseau, France
+Abstract
+Ensuring the integrity of software build artifacts is an increasingly
+important concern for modern software engineering, driven by
+increasingly sophisticated attacks on build systems, distribution
+channels, and development infrastructures. Reproducible builds—
+where binaries built independently from the same source code can
+be verified to be bit-for-bit identical to the distributed artifacts—
+provide a principled foundation for transparency and trust in soft-
+ware distribution.
+Despite their potential, the large-scale adoption of reproducible
+builds faces two significant challenges: achieving high reproducibil-
+ity rates across vast software collections and establishing repro-
+ducibility monitoring infrastructure that can operate at very large
+scale. While recent studies have shown that high reproducibility
+rates are achievable at scale—demonstrated by the Nix ecosystem
+achieving over 90% reproducibility on more than 80,000 packages—
+the problem of effective reproducibility monitoring remains largely
+unsolved.
+In this work, we address the reproducibility monitoring chal-
+lenge by introducing Lila, a decentralized system for reproducibility
+assessment tailored to the functional package management model.
+Lila enables distributed reporting of build results and aggregation
+into a reproducibility database, benefiting both practitioners and
+future empirical build reproducibility studies.
+CCS Concepts
+• Security and privacy → Software security engineering; •
+Software and its engineering → Maintaining software.
+Keywords
+functional package managers; reproducible builds; software supply
+chain security
+ACM Reference Format:
+Julien Malka and Arnout Engelen. 2026. Lila: Decentralized Build Repro-
+ducibility Monitoring for the Functional Package Management Model. In
+23rd International Conference on Mining Software Repositories (MSR ’26),
+April 13–14, 2026, Rio de Janeiro, Brazil. ACM, New York, NY, USA, 5 pages.
+https://doi.org/10.1145/3793302.3793328
+This work is licensed under a Creative Commons Attribution 4.0 International License.
+MSR ’26, Rio de Janeiro, Brazil
+© 2026 Copyright held by the owner/author(s).
+ACM ISBN 979-8-4007-2474-9/2026/04
+https://doi.org/10.1145/3793302.3793328
+1 Introduction
+Ensuring the integrity of software build artifacts has become a cen-
+tral challenge in modern software engineering. Recent supply chain
+compromises—such as the SolarWinds breach and the backdoor in-
+serted into the widely used xz compression tool—have highlighted
+the risks inherent in trusting opaque or unverified build artifacts.
+In response, governments and industry initiatives are promoting
+greater transparency and verifiability in software production and
+distribution processes.
+Reproducible builds (R-B) provide a principled foundation for this
+transparency. By allowing independent parties to regenerate bina-
+ries from source and verify bitwise equivalence, reproducible builds
+shift assurance from trust in the distributor to trust in auditable
+and transparent build processes. This model complements crypto-
+graphic signing by verifying what was built, not just who built it.
+As a result, reproducible builds have emerged as a promising mech-
+anism for increasing the integrity of software supply chains [6, 7].
+As a side effect, regularly checking software artifacts for bitwise
+reproducibility also ensures that software is rebuildable, another
+very meaningful property for software engineering as rebuildability
+is a necessary condition for long term software preservation.
+Despite their success in projects such as Debian or Arch Linux,
+practical adoption of reproducible builds still faces two major chal-
+lenges. First, there is doubt among experts on the feasibility of
+achieving high reproducibility rates across very large and diverse
+package collections [5]. Encouragingly, a recent study has shown
+that the Nix package collection attains reproducibility rates ex-
+ceeding 90% across more than 80,000 packages, demonstrating that
+large-scale reproducibility is technically achievable [10]. Second,
+and less explored, is the challenge of monitoring reproducibility at
+scale. Existing monitoring infrastructures are typically centralized,
+computationally expensive, and often limited to subsets of packages
+or recent versions.
+In this work, we address the reproducibility monitoring chal-
+lenge through Lila, a decentralized system for assessing and aggre-
+gating reproducibility results in functional package management
+ecosystems. Lila enables distributed reporting of build outcomes
+from independent builders, which are then aggregated into a repro-
+ducibility database. This design enables scalable and transparent
+monitoring of reproducibility across large package collections. Lila
+provides both a practical tool for developers and maintainers, and a
+foundation for future research on transparent, large-scale software
+build reproducibility.
+Paper structure. We first introduce some background necessary
+to understand the design of our Lila tool in Section 2. We then
+present our Lila tool in Section 3. Related work is presented in
+arXiv:2601.20662v1  [cs.SE]  28 Jan 2026
+--- PAGE BREAK ---
+MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil Julien Malka and Arnout Engelen
+Section 4. Section 5 presents future work opportunities and related
+discussions, and we conclude with Section 6.
+2 Background
+In this section, we provide the necessary context to understand the
+design of our tool and its impact.
+2.1 Reproducible builds
+Reproducible builds are a software engineering practice aimed at
+ensuring that a given source code, when built within a defined
+software environment, reliably produces bitwise identical binary
+artifacts—across different machines and over time. The primary goal
+of reproducible builds is to create a verifiable link between source
+code and its compiled output, enabling third parties to indepen-
+dently verify the integrity of distributed software. This approach
+directly addresses a fundamental trust assumption in the software
+supply chain: that published binaries faithfully correspond to their
+declared source code. A challenge to this approach is that tradi-
+tional software build processes often produce non-identical outputs
+due to various sources of non-determinism. Such factors include
+embedded build timestamps, non-deterministic compiler behavior,
+differences in filesystem implementations, and other environment-
+specific variations. The Reproducible Builds Project [1]—launched
+in 2015 by members of the Debian community and later extended
+to various open-source ecosystems—has played a central role in
+defining the goals, methodologies, and best practices required to
+achieve build reproducibility. The project has provided tools, guide-
+lines, and extensive documentation to help developers identify
+and eliminate sources of build non-determinism. Furthermore, its
+contributors have been instrumental in auditing the broader Free
+and Open Source Software (FOSS) ecosystem, proposing fixes for
+reproducibility issues, and working to have these fixes adopted
+upstream.
+2.2 Functional package management and Nix
+Nix [4] and Guix [3] are implementations of the functional package
+management paradigm, introduced by Dolstra, which fundamen-
+tally differs from traditional package management models. In this
+approach, packages are treated as pure functions of their declared
+build- and run-time dependencies. Nix expressions evaluate repro-
+ducibly into precisely defined build recipes, called derivations, which
+specify the exact software environment required for the build [9].
+Each derivation is uniquely identified by a cryptographic derivation
+hash. When built, derivations produce outputs—directories contain-
+ing the resulting build artifacts—also uniquely identified by their
+output hash, a value derived from the derivation metadata rather
+than the contents of the output itself. An example of such a build
+recipe for the jq package is shown in Figure 1.
+Nixpkgs, the Nix Package Collection. The Nix community main-
+tains nixpkgs, a comprehensive collection of Nix expressions for
+building a vast range of software. Serving as the package reposi-
+tory for both the Nix ecosystem and the NixOS Linux distribution,
+nixpkgs currently contains over 80,000 packages . It aggregates
+1
+software from various application domains and language-specific
+1
+The repology database reports about 85,000 packages as of July 2025.
+ecosystems, making it one of the largest package collections among
+Linux distributions.
+Store Substitution Mechanism. Although nixpkgs is primarily a
+source-based distribution, Nix supports a binary substitution mecha-
+nism that allows users to replace locally built outputs with pre-built
+binaries from a binary cache. This allows users that wish to avoid
+heavy compilation to fall back to the more classical binary distri-
+bution model, but as a consequence requires them to use and trust
+a third-party binary distributor. Nixpkgs offers cache.nixos.org,
+a central binary cache containing all the packages built by the
+continuous integration platform of the project.
+{ lib , stdenv , f e tchFromGitHub , a utoreconfHook , b i s o n } :
+stdenv.mkDerivation r e c {
+pname = " j q " ;
+version = " 1 . 8 . 1 " ;
+src = f e t c h F r o m G i t H u b {
+owner = " j q l a n g " ;
+repo = " j q " ;
+rev = v e r s i o n ;
+hash = " sha256 - R 4 y c o S n 9 L j R D / i c x S 0 V e I R 4 N j G C 8 j / f f c D h z 3 u 7 l g M I = " ;
+};
+nativeBuildInputs = [ a u t o r e c o n f H o o k b i s o n ] ;
+configureFlags = " - -with - o n i g u r u m a = n o " ;
+preConfigure = ' '
+echo " # ! / b i n / s h " > s c r i p t s / v e r s i o n
+echo " e c h o $ { v e r s i o n } " > > s c r i p t s / v e r s i o n
+patchShebangs s c r i p t s / v e r s i o n
+'';
+meta = w i t h l i b ; {
+description = " L i g h t w e i g h t command - l i n e J S O N p r o c e s s o r " ;
+homepage = " h t t p s : / / j q l a n g . g i t h u b . i o / j q / " ;
+license = l i c e n s e s . m i t ;
+platforms = p l a t f o r m s . u n i x ;
+};
+}
+Figure 1: Simplified Nix expression for the jq package.
+3 Lila
+An overview of Lila’s design can be found in Figure 2.
+3.1 General design
+To enable decentralized collection of reproducibility attestations,
+the Lila client captures and reports build results directly from the
+Nix client-side build process. Its goal is to record, for each completed
+build, a verifiable statement binding the build recipe (derivation) to
+the produced outputs. To achieve this, Lila integrates with the Nix
+build system using the post-build-hook mechanism—a feature of
+Nix that allows the execution of arbitrary code after a local build fin-
+ishes. Upon invocation, Lila inspects the output paths generated by
+the build and creates an attestation that includes the cryptographic
+hash of the derivation defining the build and the cryptographic
+hashes of the contents of all produced outputs. This attestation
+is signed with a builder-specific private key and submitted to the
+aggregation server through an authenticated API request.
+--- PAGE BREAK ---
+Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil
+Figure 2: Overview of the Lila design.
+Field Description
+id Unique identifier for the attestation
+output_path Store path of the built output
+user_id Identifier of the submitting user
+drv_id Identifier of the derivation that produced the
+output
+output_hash Cryptographic hash of the output content
+output_sig Signature of the hash by the submitting client
+Table 1: Schema of an attestation entry in the Lila database.
+The server component functions as a central aggregator for re-
+ported build hashes. It exposes a REST API (whose specification
+is detailed in Table 2) which accepts signed attestations from au-
+thenticated clients. Clients authenticate using a private token that
+is attributed to them by the system administrator. This token is
+intended to avoid abuse of the aggregation server, but is not part
+of the trust chain between the creator and the consumer of the
+attestations. The server validates the reports and stores them for
+later querying and comparison. Additionally, Lila can ingest build
+hashes produced by the NixOS continuous integration platform, al-
+lowing the database to benefit from the comprehensive set of builds
+performed by that infrastructure. An overview of the attestation
+structure is shown in Table 1.
+The server also includes a web interface designed to generate
+and display reproducibility dashboards and reports. This interface
+enables users to monitor sets of packages of interest and to easily
+detect reproducibility regressions over time.
+3.2 Potential usage
+Lila is designed as a foundational component for both practitioners
+and researchers seeking to advance the security of the software
+supply chain and study build reproducibility.
+For researchers, Lila offers a valuable source of empirical data to
+better understand the challenges of build reproducibility at scale.
+Its decentralized architecture facilitates the collection of repro-
+ducibility reports from a diverse set of users operating across var-
+ied hardware and environments, making it particularly suitable
+for analyzing build reproducibility in specific software ecosystems.
+Furthermore, Lila’s extensible design enables the integration of
+additional metadata collection mechanisms, which can help collect
+data specifically tailored to studying precise phenomena. In line
+with this vision, metadata included in build attestations could be
+used to better understand the exact content of the build environ-
+ment that was used to build a given derivation. Studying those
+metadata could help answer research questions until then difficult
+to tackle by academic research, such as the impact of bitwise repro-
+ducibility of each software component in the build environment on
+the bitwise reproducibility of the produced artifact.
+Beyond its research applications, Lila is intended as a practical
+tool for experts and maintainers working on reproducible builds.
+By providing reproducibility dashboards, Lila facilitates the timely
+identification of packages that have regressed in reproducibility,
+enabling faster response and remediation. Additionally, its decen-
+tralized model for distributing the verification workload expands
+both the scope and temporal reach of reproducibility monitoring
+within the NixOS community. This approach not only allows for
+monitoring a broader set of packages but also supports histori-
+cal tracking—collecting build attestations for older package ver-
+sions—thereby enabling long-term analysis of the reproducibility
+status of packages over time.
+Finally, we hope that Lila can serve as a foundational building
+block for the development of user-facing tools that leverage bitwise
+reproducibility to minimize or eliminate trust relationships within
+the Nix binary distribution supply chain.
+4 Related work
+This work is contributing to the literature on bitwise build repro-
+ducibility.
+R-B for software supply chain integrity. Lamb et al. articulated a
+vision of a binary distribution system grounded in R-B, emphasizing
+--- PAGE BREAK ---
+MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil Julien Malka and Arnout Engelen
+Endpoint Method Description
+/attestation/{drv_hash} POST Submit a signed attestation for a derivation and its output hashes
+(requires token).
+/attestations/by-output/{output_path} GET Retrieve all attestations for a given output path.
+/derivations/ GET List all derivations known to the server.
+/derivations/{drv_hash} GET Retrieve attestation summary or full attestation set for a specific
+derivation.
+/reports GET List the names of all defined reports.
+/reports/{name} GET Return the queried report in a formatted output.
+/reports/{name}/suggested GET Get a suggested list of derivations needing rebuilds, based on a
+report (requires token).
+Table 2: Overview of the Lila REST API architecture.
+its role in eliminating blind trust in distribution intermediaries [6].
+However, some challenges are still open to achieve this vision and
+currently it remains largely unimplemented.
+Reproducibility monitoring systems. Current reproducibility mon-
+itoring solutions are largely centralized and project-specific. For
+example, rebuilderd automates rebuilds and artifact verification
+within the Arch Linux ecosystem [11]. Similarly, Debian and other
+distributions maintain in-house reproducibility check infrastruc-
+tures. While effective within their scopes, these systems rely on
+centralized builders, inherently limiting their scalability. In contrast,
+Lila aims to decentralize the attestation and monitoring process,
+thereby distributing both computational workload and trust—a
+design choice inspired by the limitations observed in centralized
+monitoring systems.
+Empirical studies on R-B. Empirical research has provided valu-
+able insights into the practical challenges of achieving reproducibil-
+ity in large package sets. Malka et al. [10] showed that over 90% of
+the Nix package collection is reproducible, proving that achieving R-
+B at scale is possible. Other studies, such as Sharma et al. [12], exam-
+ined reproducibility in specific ecosystems like Maven, highlighting
+ecosystem-specific reproducibility challenges. Finally, Benedetti et
+al. studied reproducibility in six popular software ecosystems and
+reported on the variability of reproducibility rates across them and
+ways to improve it [2]. While insightful, these studies are limited
+in scope (of the package set studied or the time frame) because of
+their centralized nature. Lila complements these empirical efforts
+by proposing an infrastructure that can collect reproducibility data
+from decentralized sources, potentially serving both operational
+monitoring and future academic studies.
+5 Discussion and future work
+Lila is currently being gradually deployed within the Nix commu-
+nity, with the goal of eventually replacing the existing, limited
+reproducibility dashboards. Our experimental instance has already
+proved its usefulness, collecting more than 150,000 reproducibility
+reports and producing several reproducibility dashboards that have
+helped experts identify reproducibility issues. The success of Lila’s
+ambition to cover a scope as large as the entire Nix ecosystem
+depends on the willingness of trusted third parties to contribute
+computing resources for reproducibility monitoring. Encouragingly,
+several such participants have already expressed interest, giving
+us confidence in the viability of this approach. From a technical
+perspective, our initial deployment with a small group of users
+revealed no scalability issues inherent to the design.
+As for future work, we intend to leverage the Lila database to
+perform large-scale studies on bitwise reproducibility in functional
+package manager ecosystems and its evolution over time. While
+Lila was initially developed with the Nix ecosystem in mind, its
+design is fully compatible with Guix and could even serve as a
+shared infrastructure between both ecosystems.
+One limitation of Lila is that it still relies on a centralized aggre-
+gation server for collecting and serving reproducibility attestations,
+and only decentralizes build execution and attestation across inde-
+pendent participants. Fully peer-to-peer aggregation would require
+substantially more engineering effort and introduce challenges re-
+lated to coordination and consensus. We therefore view the current
+design as a pragmatic first step that can be used today to improve
+software supply chain security, while leaving more ambitious fully
+decentralized reproducibility tracking architectures for future work.
+6 Conclusion
+In this work, we presented Lila, a decentralized infrastructure for
+monitoring build reproducibility within the functional package
+management ecosystem. By leveraging the properties of functional
+package managers like Nix, Lila enables scalable and decentralized
+collection of reproducibility attestations across diverse environ-
+ments and participants.
+Our system complements existing centralized reproducibility
+monitoring solutions by distributing the verification effort, pro-
+viding a persistent and queryable database of build reports, and
+allowing more secure package manager implementations to build
+upon that database. We envision Lila as a tool and a database to
+support future empirical research on build reproducibility, allowing
+the replication of existing methodologies at a scale not attainable
+before and answering new research questions.
+7 Availability
+Lila is open source software, its sources are released under the
+EUPL-1.2 licence [8].
+--- PAGE BREAK ---
+Lila: Decentralized Build Reproducibility Monitoring for the Functional Package Management Model MSR ’26, April 13–14, 2026, Rio de Janeiro, Brazil
+References
+[1] 2025. Reproducible Builds — a set of software development practices that create an
+independently-verifiable path from source to binary code. https://reproducible-
+builds.org/
+[2] Giacomo Benedetti, Oreofe Solarin, Courtney Miller, Greg Tystahl, William Enck,
+Christian Kästner, Alexandros Kapravelos, Alessio Merlo, and Luca Verderame.
+2025. An Empirical Study on Reproducible Packaging in Open-Source Ecosystems.
+In 2025 IEEE/ACM 47th International Conference on Software Engineering (ICSE).
+1052–1063. doi:10.1109/ICSE55347.2025.00136 ISSN: 1558-1225.
+[3] Ludovic Courtès. 2013. Functional Package Management with Guix. doi:10.48550/
+arXiv.1305.4584 arXiv:1305.4584 [cs].
+[4] Eelco Dolstra. 2006. The purely functional software deployment model. Ph. D.
+Dissertation. s.n., S.l. OCLC: 71702886.
+[5] Marcel Fourné, Dominik Wermke, William Enck, Sascha Fahl, and Yasemin
+Acar. 2023. It’s like flossing your teeth: On the importance and challenges of
+reproducible builds for software supply chain security. In 2023 IEEE Symposium on
+Security and Privacy (SP). IEEE, 1527–1544. https://ieeexplore.ieee.org/abstract/
+document/10179320/
+[6] Chris Lamb and Stefano Zacchiroli. 2022. Reproducible Builds: Increasing the
+Integrity of Software Supply Chains. IEEE Software 39, 2 (March 2022), 62–70.
+doi:10.1109/MS.2021.3073045 Conference Name: IEEE Software.
+[7] Julien Malka. 2026. How Reproducible Builds Could Have Detected the XZ Supply-
+Chain Attack for the Benefit of All. (2026). https://hal.science/hal-05326226
+[8] Julien Malka and Arnout Engelen. 2025. Lila, Nix hash collection software, to
+aggregate build reports from several builders. https://github.com/nix-community/
+Lila
+[9] Julien Malka, Stefano Zacchiroli, and Théo Zimmermann. 2024. Reproducibility of
+Build Environments through Space and Time. In Proceedings of the 2024 ACM/IEEE
+44th International Conference on Software Engineering: New Ideas and Emerging
+Results (ICSE-NIER’24). Association for Computing Machinery, New York, NY,
+USA, 97–101. doi:10.1145/3639476.3639767
+[10] Julien Malka, Stefano Zacchiroli, and Théo Zimmermann. 2025. Does Func-
+tional Package Management Enable Reproducible Builds at Scale? Yes.. In 2025
+IEEE/ACM 22nd International Conference on Mining Software Repositories (MSR).
+775–787. doi:10.1109/MSR66628.2025.00115 ISSN: 2574-3864.
+[11] The rebuilderd contributors. 2025. rebuilderd, independent verification of binary
+packages - Reproducible Builds. https://github.com/kpcyrd/rebuilderd original-
+date: 2019-12-12T19:19:37Z.
+[12] Aman Sharma, Benoit Baudry, and Martin Monperrus. 2026. Causes and Canon-
+icalization of Unreproducible Builds in Java. IEEE Transactions on Software
+Engineering 52, 1 (2026), 54–69. doi:10.1109/TSE.2025.3627891

@@ -1,0 +1,5 @@
+{
+  "code": "E_PARSE_ERROR",
+  "context": "<INPUT>",
+  "message": "<INPUT>: opening PDF '<INPUT>': invalid structure: no startxref keyword found and repair scan failed\n  while parsing document structure"
+}

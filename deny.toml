@@ -1,0 +1,69 @@
+[graph]
+all-features = true
+
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Zlib",
+]
+confidence-threshold = 0.8
+# Internal workspace crates are unpublished and don't need license fields
+exceptions = [
+    { allow = ["LicenseRef-udoc-internal"], name = "udoc" },
+    { allow = ["LicenseRef-udoc-internal"], name = "udoc-core" },
+    { allow = ["LicenseRef-udoc-internal"], name = "udoc-pdf" },
+    { allow = ["LicenseRef-udoc-internal"], name = "bench-compare" },
+    { allow = ["LicenseRef-udoc-internal"], name = "validate-metrics" },
+    { allow = ["LicenseRef-udoc-internal"], name = "corpus-builder" },
+]
+
+[[licenses.clarify]]
+name = "udoc"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[[licenses.clarify]]
+name = "udoc-core"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[[licenses.clarify]]
+name = "udoc-pdf"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[[licenses.clarify]]
+name = "bench-compare"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[[licenses.clarify]]
+name = "validate-metrics"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[[licenses.clarify]]
+name = "corpus-builder"
+expression = "LicenseRef-udoc-internal"
+license-files = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

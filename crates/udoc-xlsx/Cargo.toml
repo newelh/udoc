@@ -1,0 +1,29 @@
+[package]
+name = "udoc-xlsx"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "XLSX backend for the udoc document extraction toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["xlsx", "excel", "spreadsheet", "ooxml"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[features]
+default = []
+test-internals = []
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1" }
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[lints]
+workspace = true

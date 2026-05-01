@@ -1,0 +1,40 @@
+[package]
+name = "udoc-image"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Image decoders (CCITT fax, JBIG2) for the udoc document extraction toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["pdf", "image", "jbig2", "ccitt", "fax"]
+categories.workspace = true
+
+[dependencies]
+# udoc-core for the shared safe_alloc_size helper + ResourceLimitExceeded
+# typed error payload (SEC-ALLOC-CLAMP, #62). No feature overhead -- we only
+# use limits::{safe_alloc_size, DEFAULT_MAX_ALLOC_BYTES}.
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+# JPEG decode for DCTDecode streams in the transcoding helper (T3-IMG-TRANS).
+jpeg-decoder = { version = "0.3", default-features = false }
+# PNG encode for the raw-to-PNG transcoding helper (T3-IMG-TRANS).
+png = "0.17"
+# Deflate for Flate filter-chain decoding in the transcoding helper.
+flate2 = { workspace = true }
+
+[dev-dependencies]
+# Used by the JPEG round-trip test to synthesize a small JPEG at test time.
+# Already present in the workspace lockfile as a transitive dependency; no
+# new supply-chain surface.
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+
+[features]
+default = ["jbig2"]
+# Enables JBIG2 decoding via the own ISO 14492 decoder (#158). When
+# disabled, JBIG2 streams are passed through raw (the filter chain reports
+# an unsupported filter warning). The feature name is retained for API
+# stability even though there is no longer an external dep to gate.
+jbig2 = []
+
+[lints]
+workspace = true

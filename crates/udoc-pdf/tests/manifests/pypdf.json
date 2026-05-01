@@ -1,0 +1,89 @@
+{
+  "name": "pypdf",
+  "entries": [
+    {
+      "pdf_path": "tests/corpus/pypdf/1601.03642.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/1601.03642.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/1602.06541.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/1602.06541.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/1707.09725.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/1707.09725.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00021.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00021.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00022.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00022.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00029.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00029.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00037.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00037.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00069.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00069.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00151.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00151.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00178.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00178.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00200.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00200.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00201.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00201.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/2201.00214.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/2201.00214.txt",
+      "categories": ["multi-column", "math"],
+      "verification": "human-verified"
+    },
+    {
+      "pdf_path": "tests/corpus/pypdf/GeoTopo-book.pdf",
+      "ground_truth_path": "tests/ground-truth/pypdf/GeoTopo-book.txt",
+      "categories": ["single-column", "math"],
+      "verification": "human-verified"
+    }
+  ]
+}

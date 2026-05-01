@@ -1,0 +1,29 @@
+[package]
+name = "udoc-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Format-agnostic document extraction types for the udoc toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["document-extraction", "text-extraction", "parsing"]
+categories.workspace = true
+exclude = ["tests/**"]
+
+[dependencies]
+encoding_rs = { workspace = true }
+serde = { workspace = true, optional = true }
+png = { version = "0.17", optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
+test-internals = ["dep:png"]
+
+[dev-dependencies]
+proptest = { workspace = true }
+serde_json = "1"
+
+[lints]
+workspace = true

@@ -1,0 +1,27 @@
+List fonts referenced by a document with their FontResolution (Exact / Substituted / SyntheticFallback).
+
+Default mode is the lighter release-facing report (per-font resolution + page coverage). With `--audit`, runs the full corpus-style audit (the `audit-fonts` subcommand body): missing-glyph probe + corpus-level summary ratios. Per the two subcommands collapsed into one.
+
+Usage: udoc fonts [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>
+          Input document
+
+Options:
+  -o, --output <FILE>
+          Write the report here instead of stdout
+
+      --format <FORMAT>
+          Output format: `json` (default) or `text`
+          
+          [default: json]
+
+      --trace
+          Emit the per-font routing chain (subset-prefix strip, tier1 name match, Unicode sniff, fallback reason, final resolution) alongside each entry. Useful when auditing why a specific font ended up substituted. Ignored under `--audit`
+
+      --audit
+          Run the full corpus-style font-resolution audit (replaces the `audit-fonts` subcommand). Slower; emits more detail
+
+  -h, --help
+          Print help (see a summary with '-h')

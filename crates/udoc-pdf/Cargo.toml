@@ -1,0 +1,70 @@
+[package]
+name = "udoc-pdf"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "A Rust library for extracting text and images from PDFs, optimized for robustness against malformed files"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["pdf", "text-extraction", "pdf-parser", "table-extraction", "parsing"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-font = { path = "../udoc-font", version = "0.1.0-alpha.1" }
+udoc-image = { path = "../udoc-image", version = "0.1.0-alpha.1", default-features = false }
+ahash = { workspace = true }
+flate2 = { workspace = true }
+md-5 = "0.10"
+aes = "0.8"
+cbc = "0.1"
+sha2 = "0.10"
+
+[features]
+default = ["jbig2"]
+test-internals = []
+# Enable JBIG2 stream decoding via the own ISO 14492 decoder (#158).
+# When disabled, JBIG2 streams are passed through raw and the filter
+# chain emits an UnsupportedFilter warning. Drops the own-decoder code
+# (arith coder + segment / region parsers) from the binary.
+jbig2 = ["udoc-image/jbig2"]
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = { workspace = true }
+serde = { workspace = true }
+toml = "0.9.6"
+udoc-pdf = { path = ".", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[[bench]]
+name = "lexer"
+harness = false
+
+[[bench]]
+name = "dictionary"
+harness = false
+
+[[bench]]
+name = "stream_decoder"
+harness = false
+
+[[bench]]
+name = "interpreter"
+harness = false
+
+[[bench]]
+name = "end_to_end"
+harness = false
+
+[[bench]]
+name = "table"
+harness = false
+
+[lints]
+workspace = true
+

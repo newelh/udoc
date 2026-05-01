@@ -1,0 +1,34 @@
+{
+  "file": "<INPUT>",
+  "fonts": [
+    {
+      "pages": [
+        1
+      ],
+      "referenced_name": "Helvetica",
+      "resolution": {
+        "reason": {
+          "kind": "NameRouted"
+        },
+        "requested": "Helvetica",
+        "resolved": "standard-14 Helvetica",
+        "status": "Substituted"
+      },
+      "sample_chars": "Hello World",
+      "spans": 1
+    }
+  ],
+  "missing_glyphs": [],
+  "pages": 1,
+  "summary": {
+    "exact": 0,
+    "fallback_ratio": 1.0,
+    "missing_glyph_pairs": 0,
+    "missing_glyph_total": 0,
+    "spans_total": 1,
+    "spans_with_fallback": 1,
+    "substituted": 1,
+    "synthetic_fallback": 0,
+    "total_fonts": 1
+  }
+}

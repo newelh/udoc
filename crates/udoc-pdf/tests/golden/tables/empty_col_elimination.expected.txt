@@ -1,0 +1,4 @@
+TABLE 0 (3 rows, 2 cols, RuledLine)
+A|C
+D|F
+G|I

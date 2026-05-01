@@ -1,0 +1,72 @@
+[package]
+name = "udoc-py"
+version = "0.1.0-alpha.1"
+edition = "2021"
+publish = false
+description = "Python bindings for udoc"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/newelh/udoc"
+homepage = "https://github.com/newelh/udoc"
+
+# `publish = false` because the wheel is built by maturin from the
+# workspace-root `pyproject.toml`, not via `cargo publish`. This flag
+# only governs cargo's publish path.
+
+[lib]
+# The Python module name must match the cdylib name. Users
+# `import udoc`, so the cdylib is `udoc`. The cargo package name stays
+# `udoc-py` for unambiguous workspace addressing (`cargo build -p udoc-py`).
+# `doc = false` because the cdylib lib name collides with the `udoc`
+# facade crate when generating workspace-wide rustdoc output.
+name = "udoc"
+crate-type = ["cdylib", "rlib"]
+doc = false
+
+[features]
+# `extension-module` is enabled by maturin via
+# `tool.maturin.features = ["pyo3/extension-module"]` (see workspace
+# pyproject.toml). It is intentionally NOT a default feature here so
+# `cargo test -p udoc-py --lib` can link against libpython for the
+# Rust-side unit tests. Wheel builds are unaffected because maturin
+# passes `--features pyo3/extension-module` directly.
+#
+# Test modules in `types.rs` etc. are guarded by
+# `#[cfg(not(feature = "extension-module"))]` so a workspace-wide
+# `cargo test --all-features` does not try to link the libpython-less
+# wheel-shaped cdylib against test entry points. Defining the feature
+# here (even as an empty alias) keeps rustc's cfg checker happy.
+default = []
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+# pyo3 0.28 -- current stable line, all-Bound API.
+# `extension-module` is feature-gated (see [features] above) so unit
+# tests can link against libpython. `abi3-py310` builds a stable-ABI
+# wheel that runs on CPython 3.10+ from a single artifact, cutting the
+# wheel matrix from 4 Python versions to 1 per platform.
+pyo3 = { version = "0.28", features = ["abi3-py310"] }
+
+# The cdylib's [lib].name is "udoc"; it would otherwise shadow the facade
+# crate at rustc resolve time. Alias the dep to dodge the collision.
+udoc_facade = { package = "udoc", path = "../udoc" }
+
+# Direct dep on udoc-core so `errors.rs` can name `EncryptionReason`,
+# `EncryptionRequired`, `ResourceLimitExceeded` directly. The facade
+# re-exports `Error` but not the typed payload structs/enums; we need
+# them in scope for the `udoc_error_to_py` dispatch +  tests.
+udoc-core = { path = "../udoc-core" }
+
+# Used by the to_json / to_dict fallback paths in the convert layer.
+serde_json = "1"
+
+[dev-dependencies]
+# Re-declare pyo3 in dev-dependencies with `auto-initialize` so unit
+# tests get a live interpreter without each test calling
+# `Python::initialize()` manually. (Matches the pattern from
+# W1-METHODS-TYPES.)
+pyo3 = { version = "0.28", features = ["abi3-py310", "auto-initialize"] }
+
+# pyo3 0.28's #[pymodule] / #[pyfunction] macros expand to unsafe blocks.
+# The workspace policy (#![deny(unsafe_code)] elsewhere) is relaxed at this
+# crate's lib.rs because the unsafe is fully macro-isolated and is the
+# supported pyo3 contract.

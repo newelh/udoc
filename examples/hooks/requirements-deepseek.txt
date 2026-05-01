@@ -1,0 +1,8 @@
+# DeepSeek-OCR dependencies.
+# transformers MUST be pinned to 4.46.3: newer versions (including 5.x) removed
+# LlamaFlashAttention2, which the DeepSeek-OCR remote code imports at load time.
+transformers==4.46.3
+torch
+torchvision
+pillow
+accelerate

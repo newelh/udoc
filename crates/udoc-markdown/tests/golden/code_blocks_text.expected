@@ -1,0 +1,12 @@
+A fenced code block with language:
+fn main() {
+    println!("Hello, world!");
+}
+A fenced code block without language:
+plain code
+Tilde fenced:
+def hello():
+    print("Hello")
+An indented code block:
+indented line 1
+indented line 2

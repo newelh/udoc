@@ -1,0 +1,27 @@
+{
+  "confidence": "sampled",
+  "extraction_format_hint": "pdf",
+  "file_size_bytes": 851,
+  "font_resolution": {
+    "missing": 0,
+    "resolved": 0,
+    "substituted": 1
+  },
+  "format": "pdf",
+  "has_encryption": false,
+  "has_tables": false,
+  "has_text": true,
+  "likely_scanned": false,
+  "page_count": 1,
+  "recommended_out_modes": [
+    "text",
+    "json",
+    "markdown",
+    "chunks"
+  ],
+  "sample_pages": [
+    0
+  ],
+  "sample_size": 1,
+  "sampled": true
+}

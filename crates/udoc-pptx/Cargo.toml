@@ -1,0 +1,29 @@
+[package]
+name = "udoc-pptx"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "PPTX text extraction backend for the udoc document toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["pptx", "powerpoint", "text-extraction", "parser", "document"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1" }
+
+[features]
+default = []
+test-internals = []
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[lints]
+workspace = true

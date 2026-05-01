@@ -1,0 +1,14 @@
+{
+  "file": "<INPUT>",
+  "images": [
+    {
+      "bits_per_component": 8,
+      "bytes": 12,
+      "filter": "raw",
+      "height": 2,
+      "index": 1,
+      "width": 2
+    }
+  ],
+  "pages": 1
+}

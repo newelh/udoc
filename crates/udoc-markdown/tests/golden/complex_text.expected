@@ -1,0 +1,21 @@
+Project README
+This project demonstrates all Markdown features.
+Features
+Text formatting: bold, italic, strikethrough
+Code: inline code
+Links: Example
+Code Example
+fn main() {
+    println!("Hello!");
+}
+Data Table
+Feature	Supported
+Headings	Yes
+Lists	Yes
+Tables	Yes
+This is a blockquote with bold text.
+First ordered item
+Second ordered item
+Third ordered item
+Logo
+The end.

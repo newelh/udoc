@@ -1,0 +1,16 @@
+name: Question
+description: Ask about usage, behaviour, or design intent.
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: What you have already tried or read
+      description: |
+        Helps avoid pointing you at the same docs you already saw.

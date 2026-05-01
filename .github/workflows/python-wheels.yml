@@ -1,0 +1,69 @@
+# Validates the wheel build on every push touching the bindings or the
+# core crates. Does NOT publish — that is `release.yml` on tag push.
+# This workflow is the canary that catches build-matrix breakage before
+# release day.
+
+name: Python wheels
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/udoc-py/**"
+      - "crates/udoc/**"
+      - "crates/udoc-core/**"
+      - "pyproject.toml"
+      - ".github/workflows/python-wheels.yml"
+  pull_request:
+    paths:
+      - "crates/udoc-py/**"
+      - "crates/udoc/**"
+      - "crates/udoc-core/**"
+      - "pyproject.toml"
+      - ".github/workflows/python-wheels.yml"
+  workflow_dispatch:
+
+jobs:
+  build-wheels:
+    name: wheel py${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install maturin
+        run: pip install --upgrade pip maturin
+
+      - name: Build wheel
+        run: maturin build --release --out dist
+
+      - name: Smoke import
+        shell: bash
+        run: |
+          set -euxo pipefail
+          pip install dist/udoc-*.whl
+          python -c "
+          import udoc
+          assert callable(udoc.extract), 'extract not callable'
+          print('udoc version:', udoc.__version__)
+          print('OK')
+          "
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}-py${{ matrix.python }}
+          path: dist/*.whl
+          retention-days: 14

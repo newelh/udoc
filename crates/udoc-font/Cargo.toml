@@ -1,0 +1,28 @@
+[package]
+name = "udoc-font"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Format-agnostic font parsing and hinting (CFF, Type1, TrueType) for the udoc document toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["font", "truetype", "cff", "type1", "hinting"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+ahash = { workspace = true }
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[features]
+default = []
+test-internals = []
+
+[lints]
+workspace = true

@@ -1,0 +1,105 @@
+[package]
+name = "udoc"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Extract text, tables, and images from documents"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["document-extraction", "text-extraction", "pdf", "docx", "xlsx"]
+categories.workspace = true
+exclude = ["tests/**"]
+
+[[bin]]
+name = "udoc"
+path = "src/main.rs"
+required-features = ["cli"]
+
+# Runnable examples. Each ends with assertions so
+# `cargo test --examples` exercises them as smoke gates. The hooks example
+# spawns a subprocess hook that talks JSONL, so it requires the `json`
+# feature; the others use only the always-on facade.
+[[example]]
+name = "extract"
+path = "examples/extract.rs"
+
+[[example]]
+name = "render"
+path = "examples/render.rs"
+
+[[example]]
+name = "hooks"
+path = "examples/hooks.rs"
+required-features = ["json"]
+
+[[example]]
+name = "streaming"
+path = "examples/streaming.rs"
+
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["serde"] }
+udoc-font = { path = "../udoc-font", version = "0.1.0-alpha.1" }
+udoc-render = { path = "../udoc-render", version = "0.1.0-alpha.1", default-features = false }
+udoc-pdf = { path = "../udoc-pdf", version = "0.1.0-alpha.1", default-features = false }
+udoc-rtf = { path = "../udoc-rtf", version = "0.1.0-alpha.1" }
+udoc-markdown = { path = "../udoc-markdown", version = "0.1.0-alpha.1" }
+udoc-pptx = { path = "../udoc-pptx", version = "0.1.0-alpha.1" }
+udoc-docx = { path = "../udoc-docx", version = "0.1.0-alpha.1" }
+udoc-xlsx = { path = "../udoc-xlsx", version = "0.1.0-alpha.1" }
+udoc-odf = { path = "../udoc-odf", version = "0.1.0-alpha.1" }
+udoc-ppt = { path = "../udoc-ppt", version = "0.1.0-alpha.1" }
+udoc-doc = { path = "../udoc-doc", version = "0.1.0-alpha.1" }
+udoc-xls = { path = "../udoc-xls", version = "0.1.0-alpha.1" }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1" }
+serde = { workspace = true }
+serde_json = { version = "1", optional = true }
+clap = { version = "4", features = ["derive"], optional = true }
+clap_complete = { version = "4", optional = true }
+clap_mangen = { version = "0.2", optional = true }
+unicode-normalization = "0.1.25"
+
+[features]
+default = ["cli", "tier1-fonts", "tier1-serif-bold", "tier1-sans-bold", "tier2-arabic", "jbig2"]
+cli = ["dep:clap", "dep:clap_complete", "dep:clap_mangen", "json"]
+json = ["dep:serde_json"]
+# Internal renderer-iteration tooling (`udoc render-diff`, `udoc render-inspect`).
+# Default release binary excludes these; CI / local dev builds with --features
+# dev-tools to access them. Keeps the alpha CLI surface small (per
+# D- recommendation A).
+dev-tools = []
+test-internals = ["udoc-core/test-internals", "udoc-render/test-internals"]
+# Exposes `auto_hinter::fitting::probe` for the cursor-pair-diagnose tool.
+# Implies test-internals. Never enabled by default builds.
+cursor-diag = ["udoc-render/cursor-diag", "test-internals"]
+# Bundled font tier flags. Forwarded to udoc-render.
+# Each face disabled at build time drops its bytes (~400 KB to ~2.1 MB each)
+# from the resulting binary. Routing degrades gracefully: when a feature
+# is off the routed face returns None and the call falls back to the
+# always-available Liberation Sans / Serif Regular pair.
+tier1-fonts = ["udoc-render/tier1-fonts"]
+tier1-serif-bold = ["udoc-render/tier1-serif-bold"]
+tier1-sans-bold = ["udoc-render/tier1-sans-bold"]
+cjk-fonts = ["udoc-render/cjk-fonts"]
+# Tier 2 Noto Sans Arabic. Adds ~485 KB. Default ON
+# because Liberation has no Arabic coverage; without this, Arabic glyphs
+# render as `.notdef`.
+tier2-arabic = ["udoc-render/tier2-arabic"]
+# JBIG2 decode via the own ISO 14492 decoder (#158). Forwarded to
+# udoc-pdf. Drops the own-decoder code from the binary when disabled.
+jbig2 = ["udoc-pdf/jbig2"]
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-ppt = { path = "../udoc-ppt", version = "0.1.0-alpha.1", features = ["test-internals"] }
+serde_json = "1"
+udoc-xls = { path = "../udoc-xls", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-doc = { path = "../udoc-doc", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[lints]
+workspace = true

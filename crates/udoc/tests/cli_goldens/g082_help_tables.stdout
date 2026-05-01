@@ -1,0 +1,10 @@
+Extract tables only, defaulting to TSV. Equivalent to `udoc extract --out tsv <file>`; the subcommand is the discoverability win for users who already know they want tables
+
+Usage: udoc tables [OPTIONS] <FILE>
+
+Arguments:
+  <FILE>  Input document
+
+Options:
+  -o, --output <FILE>  Write the report here instead of stdout
+  -h, --help           Print help

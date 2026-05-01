@@ -1,0 +1,75 @@
+{
+  "DocumentMetadata": {
+    "Pages": 1
+  },
+  "Blocks": [
+    {
+      "BlockType": "PAGE",
+      "Id": "page-1",
+      "Geometry": {
+        "BoundingBox": { "Left": 0.0, "Top": 0.0, "Width": 1.0, "Height": 1.0 },
+        "Polygon": [
+          {"X": 0.0, "Y": 0.0}, {"X": 1.0, "Y": 0.0},
+          {"X": 1.0, "Y": 1.0}, {"X": 0.0, "Y": 1.0}
+        ]
+      },
+      "Relationships": [{"Type": "CHILD", "Ids": ["line-1", "line-2"]}]
+    },
+    {
+      "BlockType": "LINE",
+      "Id": "line-1",
+      "Text": "Invoice #1042",
+      "Confidence": 99.1,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.062, "Top": 0.038, "Width": 0.21, "Height": 0.028 }
+      },
+      "Relationships": [{"Type": "CHILD", "Ids": ["word-1", "word-2"]}]
+    },
+    {
+      "BlockType": "WORD",
+      "Id": "word-1",
+      "Text": "Invoice",
+      "Confidence": 99.5,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.062, "Top": 0.038, "Width": 0.11, "Height": 0.028 }
+      }
+    },
+    {
+      "BlockType": "WORD",
+      "Id": "word-2",
+      "Text": "#1042",
+      "Confidence": 98.7,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.18, "Top": 0.038, "Width": 0.092, "Height": 0.028 }
+      }
+    },
+    {
+      "BlockType": "LINE",
+      "Id": "line-2",
+      "Text": "Total: $4,320.00",
+      "Confidence": 98.3,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.062, "Top": 0.82, "Width": 0.26, "Height": 0.028 }
+      },
+      "Relationships": [{"Type": "CHILD", "Ids": ["word-3", "word-4"]}]
+    },
+    {
+      "BlockType": "WORD",
+      "Id": "word-3",
+      "Text": "Total:",
+      "Confidence": 99.0,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.062, "Top": 0.82, "Width": 0.1, "Height": 0.028 }
+      }
+    },
+    {
+      "BlockType": "WORD",
+      "Id": "word-4",
+      "Text": "$4,320.00",
+      "Confidence": 97.8,
+      "Geometry": {
+        "BoundingBox": { "Left": 0.168, "Top": 0.82, "Width": 0.154, "Height": 0.028 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+# Build
+/target
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage
+tarpaulin-*
+lcov.info
+*.profraw
+*.profdata
+coverage-report/
+
+# Python venvs, uv, and build artifacts
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+# Maturin-installed cdylib next to the python source tree.
+python/udoc/_native*.so
+python/udoc/*.abi3.so
+python/udoc/*.so
+python/udoc/*.pyd
+python/udoc/*.dylib
+# Bundled CLI binary lives at python/udoc/_bin/udoc (staged into wheels
+# by build-wheels.sh / release CI). NOT git-ignored -- maturin respects
+# .gitignore when packing python-source files into the wheel, so an
+# entry here would silently drop the binary from every wheel build.
+# Devs should leave the file untracked locally.
+
+# OS
+Thumbs.db
+
+# Stray image artifacts from local debugging
+flamegraph.svg
+image-*.jpg
+image-*.raw
+*.jpg
+*.raw
+*.j2k
+
+# Golden-test scratch artifacts written by udoc_core::test_harness on
+# failure (alongside the expected *.expected.png). Never committed.
+*.actual.png
+*.diff.png
+
+# Benchmarks output
+criterion/
+bench-output/
+benchmarks/

@@ -1,0 +1,141 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "udoc"
+version = "0.1.0a1"
+description = "Document extraction toolkit -- text, tables, images from PDF, DOCX, XLSX, PPTX, DOC, XLS, PPT, ODT, ODS, ODP, RTF, Markdown"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0 OR MIT" }
+authors = [{ name = "udoc maintainers" }]
+keywords = [
+  "pdf",
+  "docx",
+  "xlsx",
+  "pptx",
+  "office",
+  "extraction",
+  "text-extraction",
+  "documents",
+  "ocr",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Rust",
+  "Topic :: Office/Business",
+  "Topic :: Text Processing",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+# Zero third-party runtime dependencies in the core extractor.
+dependencies = []
+
+[project.optional-dependencies]
+pandas = ["pandas>=2.0"]
+arrow = ["pyarrow>=14"]
+all = ["pandas>=2.0", "pyarrow>=14"]
+
+[project.urls]
+Homepage = "https://github.com/newelh/udoc"
+Repository = "https://github.com/newelh/udoc"
+Documentation = "https://newelh.github.io/udoc"
+Issues = "https://github.com/newelh/udoc/issues"
+
+[project.scripts]
+udoc = "udoc.cli:main"
+
+[tool.maturin]
+manifest-path = "crates/udoc-py/Cargo.toml"
+python-source = "python"
+module-name = "udoc.udoc"
+features = ["pyo3/extension-module"]
+strip = true
+
+# ----------------------------------------------------------------------------
+# cibuildwheel: build matrix used by .github/workflows/release.yml on tag push.
+# abi3-py310 means one wheel covers Python 3.10 through 3.13, so we only
+# build once per platform.
+#
+# `before-build` (per platform below) compiles the udoc CLI binary and
+# stages it at python/udoc/_bin/udoc so maturin's `python-source` step
+# bundles it into the wheel. The Python entry point (`udoc.cli:main`)
+# execs that bundled binary at runtime.
+[tool.cibuildwheel]
+build = "cp310-*"
+skip = [
+  "*-musllinux_*",     # glibc target only for now
+  "pp*",               # PyPy is not supported by pyo3 abi3
+  "*-win32",           # 32-bit Windows out of scope
+  "*-manylinux_i686",  # 32-bit Linux out of scope
+]
+# Smoke test after each wheel build: import the Python module and run
+# the CLI to confirm both surfaces ship.
+test-command = '''python -c "import udoc; print('udoc', udoc.__version__)" && udoc --version'''
+test-skip = "*-macosx_x86_64 *-win_amd64"
+
+[tool.cibuildwheel.linux]
+# manylinux_2_28 covers Ubuntu 20.04+, RHEL 8+, Debian 11+.
+manylinux-x86_64-image = "manylinux_2_28"
+archs = ["x86_64", "aarch64"]
+# manylinux containers don't ship Rust; install rustup first, then
+# build the udoc binary and stage it.
+before-all = '''curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal'''
+before-build = '''
+. $HOME/.cargo/env || true
+cargo build --release -p udoc --bin udoc
+mkdir -p python/udoc/_bin
+cp target/release/udoc python/udoc/_bin/udoc
+chmod +x python/udoc/_bin/udoc
+'''
+
+[tool.cibuildwheel.macos]
+archs = ["arm64", "x86_64"]
+# pyo3 abi3 stable ABI requires macOS 10.15 or newer.
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
+# macOS host has Rust pre-installed by release.yml; just stage.
+before-build = '''
+cargo build --release -p udoc --bin udoc
+mkdir -p python/udoc/_bin
+cp target/release/udoc python/udoc/_bin/udoc
+chmod +x python/udoc/_bin/udoc
+'''
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+before-build = '''
+cargo build --release -p udoc --bin udoc
+mkdir python\\udoc\\_bin 2>NUL & rem ignore "exists" error
+copy /Y target\\release\\udoc.exe python\\udoc\\_bin\\udoc.exe
+'''
+
+# ----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["python/tests"]
+python_files = ["test_*.py"]
+
+# ----------------------------------------------------------------------------
+# Strict typing on the public Python surface; relaxed on tests where
+# `-> None` annotations on every fixture-driven test are busywork.
+[tool.mypy]
+strict = true
+files = ["python/udoc"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+check_untyped_defs = true

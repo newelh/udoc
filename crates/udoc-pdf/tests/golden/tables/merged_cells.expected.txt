@@ -1,0 +1,4 @@
+TABLE 0 (3 rows, 3 cols, RuledLine)
+merged (2x2)|C
+F
+G|H|I

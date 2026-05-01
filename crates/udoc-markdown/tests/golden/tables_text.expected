@@ -1,0 +1,9 @@
+A simple table:
+Name	Age	City
+Alice	30	NYC
+Bob	25	LA
+Charlie	35	Chicago
+A table with formatting:
+Feature	Status
+Bold	Italic
+Code	Strike

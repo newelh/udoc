@@ -1,0 +1,199 @@
+{
+  "content": [
+    {
+      "content": [
+        {
+          "id": 0,
+          "style": {},
+          "text": "Hello World",
+          "type": "text"
+        }
+      ],
+      "id": 1,
+      "type": "paragraph"
+    }
+  ],
+  "images": [],
+  "metadata": {
+    "author": null,
+    "creation_date": null,
+    "creator": null,
+    "modification_date": null,
+    "page_count": 1,
+    "producer": null,
+    "properties": {},
+    "subject": null,
+    "title": null
+  },
+  "presentation": {
+    "block_layout": {},
+    "column_specs": {},
+    "geometry": {
+      "0": {
+        "x_max": 162.0,
+        "x_min": 100.0,
+        "y_max": 712.0,
+        "y_min": 700.0
+      }
+    },
+    "image_placements": [],
+    "layout_info": {},
+    "page_assignments": {
+      "0": 0,
+      "1": 0
+    },
+    "pages": [
+      {
+        "height": 792.0,
+        "index": 0,
+        "origin_x": 0.0,
+        "origin_y": 0.0,
+        "rotation": 0,
+        "width": 612.0
+      }
+    ],
+    "paint_paths": [],
+    "patterns": [],
+    "raw_spans": [
+      {
+        "active_clips": [],
+        "active_soft_masks": [],
+        "advance_scale": 1.0,
+        "bbox": {
+          "x_max": 162.0,
+          "x_min": 100.0,
+          "y_max": 712.0,
+          "y_min": 700.0
+        },
+        "char_advances": [
+          8.66,
+          6.67,
+          2.66,
+          2.66,
+          6.67,
+          3.33,
+          11.32,
+          6.67,
+          3.99,
+          2.66,
+          6.67
+        ],
+        "char_codes": [
+          72,
+          101,
+          108,
+          108,
+          111,
+          32,
+          87,
+          111,
+          114,
+          108,
+          100
+        ],
+        "char_gids": null,
+        "color": null,
+        "font_id": "Helvetica",
+        "font_name": "Helvetica",
+        "font_resolution": {
+          "reason": {
+            "kind": "NameRouted"
+          },
+          "requested": "Helvetica",
+          "resolved": "standard-14 Helvetica",
+          "status": "Substituted"
+        },
+        "font_size": 12.0,
+        "glyph_bboxes": [
+          {
+            "x_max": 108.66,
+            "x_min": 100.0,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 115.33,
+            "x_min": 108.66,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 118.0,
+            "x_min": 115.33,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 120.66,
+            "x_min": 118.0,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 127.33,
+            "x_min": 120.66,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 130.67,
+            "x_min": 127.33,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 142.0,
+            "x_min": 130.67,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 148.67,
+            "x_min": 142.0,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 152.66,
+            "x_min": 148.67,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 155.33,
+            "x_min": 152.66,
+            "y_max": 710.2,
+            "y_min": 697.6
+          },
+          {
+            "x_max": 162.0,
+            "x_min": 155.33,
+            "y_max": 710.2,
+            "y_min": 697.6
+          }
+        ],
+        "is_bold": false,
+        "is_italic": false,
+        "is_subscript": false,
+        "is_superscript": false,
+        "letter_spacing": null,
+        "page_index": 0,
+        "rotation": 0.0,
+        "text": "Hello World",
+        "z_index": 1
+      }
+    ],
+    "shadings": [],
+    "shapes": [],
+    "text_styling": {
+      "0": {
+        "background_color": null,
+        "color": null,
+        "font_name": "Helvetica",
+        "font_size": 12.0,
+        "letter_spacing": null
+      }
+    }
+  },
+  "version": 1
+}

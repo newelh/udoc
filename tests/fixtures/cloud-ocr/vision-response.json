@@ -1,0 +1,128 @@
+{
+  "responses": [
+    {
+      "fullTextAnnotation": {
+        "pages": [
+          {
+            "width": 612,
+            "height": 792,
+            "blocks": [
+              {
+                "blockType": "TEXT",
+                "boundingBox": {
+                  "normalizedVertices": [
+                    {"x": 0.062, "y": 0.038},
+                    {"x": 0.272, "y": 0.038},
+                    {"x": 0.272, "y": 0.066},
+                    {"x": 0.062, "y": 0.066}
+                  ]
+                },
+                "paragraphs": [
+                  {
+                    "boundingBox": {
+                      "normalizedVertices": [
+                        {"x": 0.062, "y": 0.038},
+                        {"x": 0.272, "y": 0.038},
+                        {"x": 0.272, "y": 0.066},
+                        {"x": 0.062, "y": 0.066}
+                      ]
+                    },
+                    "words": [
+                      {
+                        "boundingBox": {
+                          "normalizedVertices": [
+                            {"x": 0.062, "y": 0.038},
+                            {"x": 0.172, "y": 0.038},
+                            {"x": 0.172, "y": 0.066},
+                            {"x": 0.062, "y": 0.066}
+                          ]
+                        },
+                        "symbols": [
+                          {"text": "I"}, {"text": "n"}, {"text": "v"}, {"text": "o"},
+                          {"text": "i"}, {"text": "c"}, {"text": "e"}
+                        ],
+                        "confidence": 0.995
+                      },
+                      {
+                        "boundingBox": {
+                          "normalizedVertices": [
+                            {"x": 0.18,  "y": 0.038},
+                            {"x": 0.272, "y": 0.038},
+                            {"x": 0.272, "y": 0.066},
+                            {"x": 0.18,  "y": 0.066}
+                          ]
+                        },
+                        "symbols": [
+                          {"text": "#"}, {"text": "1"}, {"text": "0"},
+                          {"text": "4"}, {"text": "2"}
+                        ],
+                        "confidence": 0.987
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "blockType": "TEXT",
+                "boundingBox": {
+                  "normalizedVertices": [
+                    {"x": 0.062, "y": 0.82},
+                    {"x": 0.322, "y": 0.82},
+                    {"x": 0.322, "y": 0.848},
+                    {"x": 0.062, "y": 0.848}
+                  ]
+                },
+                "paragraphs": [
+                  {
+                    "boundingBox": {
+                      "normalizedVertices": [
+                        {"x": 0.062, "y": 0.82},
+                        {"x": 0.322, "y": 0.82},
+                        {"x": 0.322, "y": 0.848},
+                        {"x": 0.062, "y": 0.848}
+                      ]
+                    },
+                    "words": [
+                      {
+                        "boundingBox": {
+                          "normalizedVertices": [
+                            {"x": 0.062, "y": 0.82},
+                            {"x": 0.162, "y": 0.82},
+                            {"x": 0.162, "y": 0.848},
+                            {"x": 0.062, "y": 0.848}
+                          ]
+                        },
+                        "symbols": [
+                          {"text": "T"}, {"text": "o"}, {"text": "t"},
+                          {"text": "a"}, {"text": "l"}, {"text": ":"}
+                        ],
+                        "confidence": 0.99
+                      },
+                      {
+                        "boundingBox": {
+                          "normalizedVertices": [
+                            {"x": 0.168, "y": 0.82},
+                            {"x": 0.322, "y": 0.82},
+                            {"x": 0.322, "y": 0.848},
+                            {"x": 0.168, "y": 0.848}
+                          ]
+                        },
+                        "symbols": [
+                          {"text": "$"}, {"text": "4"}, {"text": ","},
+                          {"text": "3"}, {"text": "2"}, {"text": "0"},
+                          {"text": "."}, {"text": "0"}, {"text": "0"}
+                        ],
+                        "confidence": 0.978
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "text": "Invoice #1042\nTotal: $4,320.00\n"
+      }
+    }
+  ]
+}

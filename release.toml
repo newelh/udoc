@@ -1,0 +1,68 @@
+# Workspace cargo-release config --.
+#
+# Publish order (matches the dep graph --  documents the crate split):
+#
+#   udoc-core
+#     -> udoc-containers
+#     -> udoc-font
+#     -> udoc-image
+#       -> udoc-render
+#         -> udoc-pdf
+#         -> udoc-rtf
+#         -> udoc-markdown
+#         -> udoc-{docx,xlsx,pptx,doc,xls,ppt,odf}
+#       -> udoc (facade)
+#
+# Tools (bench-compare, corpus-builder, validate-metrics, jbig2-validate)
+# stay unpublished -- their Cargo.toml carries `publish = false`.
+# udoc-py is also `publish = false`; the published Python wheel ships
+# via maturin.
+#
+# cargo-release infers publish order from the workspace dep graph, so we
+# do not enumerate the order here -- that's the leverage of the tool.
+# This file only tells cargo-release the workspace-level invariants.
+
+# Branches we allow `cargo release` to run from. Sprint branches, per-task
+# `s<N>/...` branches (used during sprint surge for dry-run rehearsals),
+# and main.
+allow-branch = ["feat/sprint-*", "s*/*", "main"]
+
+# All published crates share `version.workspace = true` and bump together.
+consolidate-commits = true
+
+# Default to publish ON. The dry-run CI workflow overrides with --no-publish.
+publish = true
+
+# Default to tagging the workspace with one tag (e.g. v0.1.0-alpha.1) rather
+# than per-crate. Override per-step on publish day if needed.
+tag = true
+tag-name = "v{{version}}"
+
+# Sign nothing by default -- publish day decides whether to require signed
+# commits/tags. Keeps `cargo release` invocable in CI without GPG setup.
+sign-commit = false
+sign-tag = false
+
+# Verify each published crate by building it (`cargo publish` default).
+# Catches metadata errors, missing files, and feature-flag drift before
+# we hit crates.io.
+verify = true
+
+# `optional`: warn on unrecognised metadata, do not fail. We have crate-specific
+# metadata (e.g. internal sprint tags in keywords) that should not block the
+# release pipeline.
+metadata = "optional"
+
+# Update `path = ".."` workspace deps to `version = "..."` requirements when
+# publishing. Without this, `cargo publish` rejects path-only deps.
+dependent-version = "upgrade"
+
+# crates.io publish-rate limit. The crates.io documented limit for *new*
+# packages is 1/hour by default, but the per-account limit is much higher
+# once you've published a few crates -- our publish day requests an uplift
+# from the crates.io team in advance (see publish-rehearsal.md). The
+# numbers below tell cargo-release not to abort locally on the new-packages
+# count: we have 16 to publish in one go.
+[rate-limit]
+new-packages = 16
+existing-packages = 30

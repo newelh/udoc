@@ -1,0 +1,61 @@
+#!/bin/sh
+# Pre-commit hook for udoc
+# Ensures code quality standards before allowing commits
+# Mirrors the CI pipeline (fmt, clippy, test, doc) so failures are caught locally.
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Check formatting
+echo "  -> cargo fmt --check --all"
+if ! cargo fmt --check --all; then
+    echo "FAIL: Code formatting check failed."
+    echo "   Run 'cargo fmt' to fix formatting issues."
+    exit 1
+fi
+
+# Run clippy with warnings as errors
+echo "  -> cargo clippy --workspace --all-targets --all-features -- -D warnings"
+if ! cargo clippy --workspace --all-targets --all-features -- -D warnings 2>&1 >/dev/null; then
+    echo "FAIL: Clippy check failed."
+    echo "   Fix all warnings before committing."
+    exit 1
+fi
+
+# Check no leftover references to the pre-S54 name (Phase 16, DEC-135).
+echo "  -> scripts/check-name-swap.sh"
+if ! ./scripts/check-name-swap.sh; then
+    echo "FAIL: name-swap gate failed (see scripts/check-name-swap.sh output above)."
+    echo "   Renamed surface should use the current name."
+    exit 1
+fi
+
+# Check facade public API has not drifted from the alpha-development baseline (DEC-140).
+echo "  -> scripts/check-public-api.sh"
+if ! ./scripts/check-public-api.sh; then
+    echo "FAIL: public-api gate failed (see scripts/check-public-api.sh output above)."
+    echo "   If the surface drift is intentional, regenerate the baseline files"
+    echo "   (crates/udoc/.public-api-baseline.txt and crates/udoc-core/.public-api-baseline.txt)"
+    echo "   and acknowledge in the PR description."
+    exit 1
+fi
+
+# Run tests
+echo "  -> cargo test --workspace --all-features"
+if ! cargo test --workspace --all-features --quiet; then
+    echo "FAIL: Tests failed."
+    echo "   Fix failing tests before committing."
+    exit 1
+fi
+
+# Check docs compile without warnings
+echo "  -> cargo doc --workspace --no-deps --all-features"
+if ! RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --all-features --quiet 2>&1 >/dev/null; then
+    echo "FAIL: Doc build failed."
+    echo "   Fix doc warnings before committing."
+    exit 1
+fi
+
+echo "OK: All pre-commit checks passed!"
+exit 0

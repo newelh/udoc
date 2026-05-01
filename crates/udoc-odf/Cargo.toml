@@ -1,0 +1,29 @@
+[package]
+name = "udoc-odf"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "ODF text extraction backend for the udoc document toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["odf", "opendocument", "text-extraction", "parser", "document"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1" }
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[features]
+default = []
+test-internals = []
+
+[lints]
+workspace = true

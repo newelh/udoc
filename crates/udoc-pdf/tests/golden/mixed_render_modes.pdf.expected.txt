@@ -1,0 +1,5 @@
+Document Title Visible
+This body text is from OCR invisible
+More invisible OCR content on page
+The scan shows a chart and table
+Footer text is visible page one

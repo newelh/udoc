@@ -1,0 +1,58 @@
+name: Format support gap
+description: A document is being mis-parsed, partially parsed, or rejected.
+labels: ["format-support"]
+body:
+  - type: dropdown
+    id: format
+    attributes:
+      label: Document format
+      options:
+        - PDF
+        - DOCX
+        - XLSX
+        - PPTX
+        - DOC (legacy)
+        - XLS (legacy)
+        - PPT (legacy)
+        - ODT
+        - ODS
+        - ODP
+        - RTF
+        - Markdown
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Where does this document come from?
+      description: |
+        Producer (Word 2003, LibreOffice, a server-side PDF writer, a
+        scanner OCR pipeline, an obscure 2007 export tool). Producer
+        identification is often the highest-leverage clue.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should be extracted
+      description: |
+        Text that is missing, tables that should be detected, headers
+        that should be tagged as headings, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What udoc does instead
+      description: Paste output, especially `udoc -j` or `udoc --raw-spans`.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample document
+      description: |
+        Attach if shareable. If the original is large, a small redacted
+        sample that still reproduces the issue is gold.

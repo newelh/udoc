@@ -1,0 +1,3 @@
+TABLE 0 (2 rows, 2 cols, RuledLine)
+X|
+|Y

@@ -1,0 +1,4 @@
+TABLE 0 (3 rows, 2 cols, HLine)
+Name|Score
+Alice|95
+Bob|87

@@ -1,0 +1,78 @@
+name: Bug report
+description: udoc produced incorrect output, panicked, or crashed.
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: udoc version
+      description: Output of `udoc --version` or `udoc.__version__`.
+      placeholder: "0.1.0-alpha.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install udoc?
+      options:
+        - pip install udoc
+        - cargo install udoc
+        - cargo build / from source
+        - other
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Document format
+      options:
+        - PDF
+        - DOCX
+        - XLSX
+        - PPTX
+        - DOC (legacy)
+        - XLS (legacy)
+        - PPT (legacy)
+        - ODT
+        - ODS
+        - ODP
+        - RTF
+        - Markdown
+        - other / unknown
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: What you ran
+      description: The CLI command, library call, or Python snippet.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What you got
+      description: Paste the output, error, or stack trace.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: file
+    attributes:
+      label: Reproducing document
+      description: |
+        If the document is small and shareable, attach it. If you cannot
+        share publicly, say so here and we will arrange a private channel.
+        For very large files, a short description of the shape often suffices.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: System info, related issues, hunches.

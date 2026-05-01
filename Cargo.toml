@@ -1,0 +1,61 @@
+[workspace]
+members = [
+    "crates/udoc",
+    "crates/udoc-containers",
+    "crates/udoc-core",
+    "crates/udoc-docx",
+    "crates/udoc-font",
+    "crates/udoc-image",
+    "crates/udoc-pdf",
+    "crates/udoc-py",
+    "crates/udoc-render",
+    "crates/udoc-rtf",
+    "crates/udoc-markdown",
+    "crates/udoc-pptx",
+    "crates/udoc-xlsx",
+    "crates/udoc-odf",
+    "crates/udoc-ppt",
+    "crates/udoc-doc",
+    "crates/udoc-xls",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0-alpha.1"
+edition = "2021"
+rust-version = "1.87"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/newelh/udoc"
+homepage = "https://github.com/newelh/udoc"
+categories = ["text-processing", "parser-implementations"]
+
+[workspace.dependencies]
+ahash = "0.8"
+encoding_rs = "0.8"
+flate2 = "1"
+proptest = "1"
+serde = { version = "1", features = ["derive"] }
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[profile.dist]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+panic = "abort"
+
+# Release-equivalent optimisation but with full DWARF and no stripping so
+# `perf record -g` and cargo-flamegraph produce useful stacks. Keeps
+# `release` clean for shipping; profiling work uses this profile.
+[profile.profiling]
+inherits = "release"
+debug = "full"
+strip = false
+split-debuginfo = "off"
+
+[workspace.lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ["cfg(fuzzing)"]

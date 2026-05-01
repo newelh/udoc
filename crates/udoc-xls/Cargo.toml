@@ -1,0 +1,30 @@
+[package]
+name = "udoc-xls"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "XLS (BIFF8) backend for udoc"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["xls", "excel", "text-extraction", "parser", "document"]
+categories.workspace = true
+exclude = [
+    "tests/**",
+]
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1" }
+
+[dev-dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-containers = { path = "../udoc-containers", version = "0.1.0-alpha.1", features = ["test-internals"] }
+udoc-xls = { path = ".", version = "0.1.0-alpha.1", features = ["test-internals"] }
+
+[features]
+default = []
+test-internals = ["udoc-containers/test-internals"]
+
+[lints]
+workspace = true

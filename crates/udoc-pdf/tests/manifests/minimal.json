@@ -1,0 +1,347 @@
+{
+  "name": "minimal",
+  "entries": [
+    {
+      "pdf_path": "tests/corpus/minimal/ArabicCIDTrueType.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/ArabicCIDTrueType.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/arial_unicode_ab_cidfont.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/arial_unicode_ab_cidfont.txt",
+      "categories": ["cjk"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/bad_xref_entry.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/bad_xref_entry.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/cid_cff.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/cid_cff.txt",
+      "categories": ["cjk"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/content_array.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/content_array.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/ctm_text.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/ctm_text.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/double_quote.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/double_quote.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/embedded_cmap_bfchar.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/embedded_cmap_bfchar.txt",
+      "categories": ["cjk"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/embedded_cmap_cidrange.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/embedded_cmap_cidrange.txt",
+      "categories": ["cjk"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/empty_page.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/empty_page.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/escaped_parens.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/escaped_parens.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/extgstate_font.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/extgstate_font.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/flate_content.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/flate_content.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/flate_extgstate.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/flate_extgstate.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/form_xobject.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/form_xobject.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/hex_string.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/hex_string.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/image_xobject.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/image_xobject.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/inline_image.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/inline_image.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/invisible_text.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/invisible_text.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/macroman_type1.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/macroman_type1.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/marked_content.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/marked_content.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/minimal_10.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/minimal_10.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/minimal_14.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/minimal_14.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/minimal_20.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/minimal_20.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/multi_bt.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/multi_bt.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/multipage.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/multipage.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/multiple_fonts.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/multiple_fonts.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/nested_pages.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/nested_pages.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/nested_xobject.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/nested_xobject.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/ostream1.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/ostream1.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/ostream2.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/ostream2.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/pseudo_linearized.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/pseudo_linearized.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/rotated_text.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/rotated_text.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/save_restore.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/save_restore.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/simpletype3font.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/simpletype3font.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/single_quote.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/single_quote.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/table_layout.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/table_layout.txt",
+      "categories": ["table"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/tagged_structure_tree.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/tagged_structure_tree.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/td_operator.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/td_operator.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/text_clip_cff_cid.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/text_clip_cff_cid.txt",
+      "categories": ["cjk"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/text_matrix.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/text_matrix.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/text_state.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/text_state.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/three_column.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/three_column.txt",
+      "categories": ["multi-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/tj_array.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/tj_array.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/TrueType_without_cmap.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/TrueType_without_cmap.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/two_column.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/two_column.txt",
+      "categories": ["multi-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/two_flate_streams.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/two_flate_streams.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/type3_agl_encoding.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/type3_agl_encoding.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/type3_shapes_only.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/type3_shapes_only.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/type3_shapes.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/type3_shapes.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/type3_tounicode.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/type3_tounicode.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/type3_word_spacing.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/type3_word_spacing.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/winansi_type1.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/winansi_type1.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/with_info.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/with_info.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/wrong_length.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/wrong_length.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/xelatex-drawboard.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/xelatex-drawboard.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    },
+    {
+      "pdf_path": "tests/corpus/minimal/xelatex.pdf",
+      "ground_truth_path": "tests/ground-truth/minimal/xelatex.txt",
+      "categories": ["single-column"],
+      "verification": "mupdf-generated"
+    }
+  ]
+}

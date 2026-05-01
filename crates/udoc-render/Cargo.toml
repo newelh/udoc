@@ -1,0 +1,56 @@
+[package]
+name = "udoc-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Page renderer for the udoc document extraction toolkit"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["pdf", "rendering", "rasterizer", "hinting", "udoc"]
+categories.workspace = true
+
+[dependencies]
+udoc-core = { path = "../udoc-core", version = "0.1.0-alpha.1" }
+udoc-font = { path = "../udoc-font", version = "0.1.0-alpha.1" }
+flate2 = { workspace = true }
+jpeg-decoder = { version = "0.3", default-features = false }
+hayro-jpeg2000 = { version = "0.3", default-features = false, features = ["std"] }
+
+[features]
+default = ["tier1-fonts", "tier1-serif-bold", "tier1-sans-bold", "tier2-arabic"]
+# Exposes internal modules (auto_hinter, rasterizer) for diagnostic tooling
+# and golden tests. Not part of the public API.
+test-internals = []
+# Enables the `auto_hinter::fitting::probe_glyph_cursor` diagnostic accessor
+# used by `tools/cursor-pair-diagnose` to dump per-glyph hinter values
+# (advance, lsb_delta, rsb_delta, pre-/post-fit edge positions) for
+# comparison against FreeType. Read-only; the feature does not change
+# fitter behavior. Implies `test-internals`.
+cursor-diag = ["test-internals"]
+# Tier 1 bundled fallback fonts beyond base Sans/Serif Regular: Liberation
+# Mono, Latin Modern Roman (regular + italic), Latin Modern Math. Adds
+# ~850 KB to the binary. Default on; disable for slim builds that don't
+# need LaTeX-flavoured or monospace rendering.
+tier1-fonts = []
+# Tier 1 Liberation Serif Bold / Italic / BoldItalic. Adds ~1.1 MB.
+# Default on; disable if documents never use bold/italic serif faces
+# (or if SerifRegular stem-widening is acceptable).
+tier1-serif-bold = []
+# Tier 1 Liberation Sans Bold / Italic / BoldItalic. Adds ~1.2 MB.
+# Default on; disable for slim builds where SansRegular is sufficient.
+tier1-sans-bold = []
+# Tier 2 Noto Sans CJK SC subset for Chinese/Japanese/Korean fallback.
+# Adds ~2.1 MB. Default OFF; enable when your corpus includes CJK
+# documents with missing or broken ToUnicode maps.
+cjk-fonts = []
+# Tier 2 Noto Sans Arabic (Regular + Bold) for Arabic-script fallback
+#. Adds ~485 KB. Default ON because the Liberation
+# fallbacks have no Arabic coverage at all -- without this flag, Arabic
+# glyphs render as `.notdef` boxes (the failure mode that sinks the
+# IA-spanish-Arabic genre on the stratified-100 bench). Disable for
+# slim builds that target Latin/CJK-only corpora.
+tier2-arabic = []
+
+[lints]
+workspace = true

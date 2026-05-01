@@ -1,0 +1,361 @@
+pub mod udoc
+pub use udoc::Alignment
+pub use udoc::AssetConfig
+pub use udoc::AssetRef
+pub use udoc::AssetStore
+pub use udoc::Block
+pub use udoc::BlockLayout
+pub use udoc::BoundingBox
+pub use udoc::CellValue
+pub use udoc::ChangeType
+pub use udoc::ColSpec
+pub use udoc::CollectingDiagnostics
+pub use udoc::Color
+pub use udoc::Comment
+pub use udoc::ComponentRef
+pub use udoc::DiagnosticsSink
+pub use udoc::Document
+pub use udoc::DocumentMetadata
+pub use udoc::Error
+pub use udoc::ExtendedTextStyle
+pub use udoc::FlowDirection
+pub use udoc::FontAsset
+pub use udoc::FontProgramType
+pub use udoc::FootnoteDef
+pub use udoc::FormField
+pub use udoc::FormFieldType
+pub use udoc::ImageAsset
+pub use udoc::ImageData
+pub use udoc::ImageRef
+pub use udoc::Inline
+pub use udoc::Interactions
+pub use udoc::LayerConfig
+pub use udoc::LayoutInfo
+pub use udoc::LayoutMode
+pub use udoc::ListItem
+pub use udoc::ListKind
+pub use udoc::NodeId
+pub use udoc::NullDiagnostics
+pub use udoc::Overlay
+pub use udoc::Padding
+pub use udoc::PageDef
+pub use udoc::PositionedSpan
+pub use udoc::Presentation
+pub use udoc::Relationships
+pub use udoc::Result
+pub use udoc::ResultExt
+pub use udoc::SectionRole
+pub use udoc::ShapeKind
+pub use udoc::SpanStyle
+pub use udoc::SparseOverlay
+pub use udoc::TableCell
+pub use udoc::TableData
+pub use udoc::TableRow
+pub use udoc::TeeDiagnostics
+pub use udoc::TocEntry
+pub use udoc::TrackedChange
+pub use udoc::Warning
+pub use udoc::WarningContext
+pub use udoc::WarningKind
+pub use udoc::WarningLevel
+pub mod udoc::config
+pub use udoc::config::LayerConfig
+pub use udoc::config::RenderingProfile
+#[non_exhaustive] pub struct udoc::config::Config
+pub udoc::config::Config::assets: udoc_core::document::assets::AssetConfig
+pub udoc::config::Config::collect_diagnostics: bool
+pub udoc::config::Config::diagnostics: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>
+pub udoc::config::Config::format: core::option::Option<udoc::detect::Format>
+pub udoc::config::Config::layers: udoc_core::backend::LayerConfig
+pub udoc::config::Config::limits: udoc_core::limits::Limits
+pub udoc::config::Config::page_range: core::option::Option<udoc::config::PageRange>
+pub udoc::config::Config::password: core::option::Option<alloc::string::String>
+pub udoc::config::Config::rendering_profile: udoc_render::RenderingProfile
+impl udoc::config::Config
+pub fn udoc::config::Config::assets(self, config: udoc_core::document::assets::AssetConfig) -> Self
+pub fn udoc::config::Config::collect_diagnostics(self, on: bool) -> Self
+pub fn udoc::config::Config::diagnostics(self, sink: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>) -> Self
+pub fn udoc::config::Config::format(self, format: udoc::detect::Format) -> Self
+pub fn udoc::config::Config::layers(self, layers: udoc_core::backend::LayerConfig) -> Self
+pub fn udoc::config::Config::limits(self, limits: udoc_core::limits::Limits) -> Self
+pub fn udoc::config::Config::new() -> Self
+pub fn udoc::config::Config::pages(self, spec: &str) -> udoc_core::error::Result<Self>
+pub fn udoc::config::Config::password(self, password: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc::config::Config::rendering_profile(self, profile: udoc_render::RenderingProfile) -> Self
+impl core::clone::Clone for udoc::config::Config
+pub fn udoc::config::Config::clone(&self) -> udoc::config::Config
+impl core::default::Default for udoc::config::Config
+pub fn udoc::config::Config::default() -> Self
+impl core::fmt::Debug for udoc::config::Config
+pub fn udoc::config::Config::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::config::Config
+impl core::marker::Send for udoc::config::Config
+impl core::marker::Sync for udoc::config::Config
+impl core::marker::Unpin for udoc::config::Config
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc::config::Config
+impl !core::panic::unwind_safe::UnwindSafe for udoc::config::Config
+pub struct udoc::config::PageRange
+impl udoc::config::PageRange
+pub fn udoc::config::PageRange::contains(&self, index: usize) -> bool
+pub fn udoc::config::PageRange::is_empty(&self) -> bool
+pub fn udoc::config::PageRange::iter(&self) -> impl core::iter::traits::iterator::Iterator<Item = usize> + '_
+pub fn udoc::config::PageRange::len(&self) -> usize
+pub fn udoc::config::PageRange::parse(spec: &str) -> udoc_core::error::Result<Self>
+impl core::clone::Clone for udoc::config::PageRange
+pub fn udoc::config::PageRange::clone(&self) -> udoc::config::PageRange
+impl core::fmt::Debug for udoc::config::PageRange
+pub fn udoc::config::PageRange::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::config::PageRange
+impl core::marker::Send for udoc::config::PageRange
+impl core::marker::Sync for udoc::config::PageRange
+impl core::marker::Unpin for udoc::config::PageRange
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::config::PageRange
+impl core::panic::unwind_safe::UnwindSafe for udoc::config::PageRange
+pub mod udoc::detect
+#[non_exhaustive] pub enum udoc::detect::Format
+pub udoc::detect::Format::Doc
+pub udoc::detect::Format::Docx
+pub udoc::detect::Format::Md
+pub udoc::detect::Format::Odp
+pub udoc::detect::Format::Ods
+pub udoc::detect::Format::Odt
+pub udoc::detect::Format::Pdf
+pub udoc::detect::Format::Ppt
+pub udoc::detect::Format::Pptx
+pub udoc::detect::Format::Rtf
+pub udoc::detect::Format::Xls
+pub udoc::detect::Format::Xlsx
+impl udoc::detect::Format
+pub fn udoc::detect::Format::can_render(&self) -> bool
+pub fn udoc::detect::Format::extension(&self) -> &'static str
+pub fn udoc::detect::Format::has_pages(&self) -> bool
+pub fn udoc::detect::Format::has_tables(&self) -> bool
+pub fn udoc::detect::Format::mime_type(&self) -> &'static str
+impl core::clone::Clone for udoc::detect::Format
+pub fn udoc::detect::Format::clone(&self) -> udoc::detect::Format
+impl core::cmp::Eq for udoc::detect::Format
+impl core::cmp::PartialEq for udoc::detect::Format
+pub fn udoc::detect::Format::eq(&self, other: &udoc::detect::Format) -> bool
+impl core::fmt::Debug for udoc::detect::Format
+pub fn udoc::detect::Format::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc::detect::Format
+pub fn udoc::detect::Format::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for udoc::detect::Format
+pub fn udoc::detect::Format::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for udoc::detect::Format
+impl core::marker::StructuralPartialEq for udoc::detect::Format
+impl core::marker::Freeze for udoc::detect::Format
+impl core::marker::Send for udoc::detect::Format
+impl core::marker::Sync for udoc::detect::Format
+impl core::marker::Unpin for udoc::detect::Format
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::detect::Format
+impl core::panic::unwind_safe::UnwindSafe for udoc::detect::Format
+pub fn udoc::detect::detect_format(data: &[u8]) -> core::option::Option<udoc::detect::Format>
+pub fn udoc::detect::detect_format_path(path: &std::path::Path) -> udoc_core::error::Result<core::option::Option<udoc::detect::Format>>
+pub mod udoc::extractor
+pub struct udoc::extractor::Extractor
+impl udoc::extractor::Extractor
+pub fn udoc::extractor::Extractor::diagnostics(&self) -> alloc::vec::Vec<udoc_core::diagnostics::Warning>
+pub fn udoc::extractor::Extractor::format(&self) -> udoc::detect::Format
+pub fn udoc::extractor::Extractor::from_bytes(data: &[u8]) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::from_bytes_with(data: &[u8], config: udoc::config::Config) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::into_document(self) -> udoc_core::error::Result<udoc_core::document::Document>
+pub fn udoc::extractor::Extractor::into_document_with_assets(self) -> udoc_core::error::Result<(udoc_core::document::Document, udoc_core::document::assets::AssetStore)>
+pub fn udoc::extractor::Extractor::is_encrypted(&self) -> bool
+pub fn udoc::extractor::Extractor::metadata(&self) -> udoc_core::document::DocumentMetadata
+pub fn udoc::extractor::Extractor::open(path: impl core::convert::AsRef<std::path::Path>) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::open_with(path: impl core::convert::AsRef<std::path::Path>, config: udoc::config::Config) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::page_count(&self) -> usize
+pub fn udoc::extractor::Extractor::page_images(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::image::PageImage>>
+pub fn udoc::extractor::Extractor::page_lines(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextLine>>
+pub fn udoc::extractor::Extractor::page_spans(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextSpan>>
+pub fn udoc::extractor::Extractor::page_tables(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::table::Table>>
+pub fn udoc::extractor::Extractor::page_text(&mut self, index: usize) -> udoc_core::error::Result<alloc::string::String>
+pub fn udoc::extractor::Extractor::reset_document_caches(&mut self)
+pub fn udoc::extractor::Extractor::text(&mut self) -> udoc_core::error::Result<alloc::string::String>
+impl core::marker::Freeze for udoc::extractor::Extractor
+impl core::marker::Send for udoc::extractor::Extractor
+impl !core::marker::Sync for udoc::extractor::Extractor
+impl core::marker::Unpin for udoc::extractor::Extractor
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc::extractor::Extractor
+impl !core::panic::unwind_safe::UnwindSafe for udoc::extractor::Extractor
+pub mod udoc::hooks
+#[non_exhaustive] pub struct udoc::hooks::HookConfig
+pub udoc::hooks::HookConfig::image_dpi: u32
+pub udoc::hooks::HookConfig::min_words_to_skip_ocr: usize
+pub udoc::hooks::HookConfig::ocr_all_pages: bool
+pub udoc::hooks::HookConfig::page_timeout_secs: u64
+impl core::clone::Clone for udoc::hooks::HookConfig
+pub fn udoc::hooks::HookConfig::clone(&self) -> udoc::hooks::HookConfig
+impl core::default::Default for udoc::hooks::HookConfig
+pub fn udoc::hooks::HookConfig::default() -> Self
+impl core::fmt::Debug for udoc::hooks::HookConfig
+pub fn udoc::hooks::HookConfig::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::hooks::HookConfig
+impl core::marker::Send for udoc::hooks::HookConfig
+impl core::marker::Sync for udoc::hooks::HookConfig
+impl core::marker::Unpin for udoc::hooks::HookConfig
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::hooks::HookConfig
+impl core::panic::unwind_safe::UnwindSafe for udoc::hooks::HookConfig
+pub struct udoc::hooks::HookRunner
+impl udoc::hooks::HookRunner
+pub fn udoc::hooks::HookRunner::new(specs: &[udoc::hooks::HookSpec], config: udoc::hooks::HookConfig) -> udoc_core::error::Result<Self>
+pub fn udoc::hooks::HookRunner::run(&mut self, doc: &mut udoc_core::document::Document, page_images: core::option::Option<&std::path::Path>) -> udoc_core::error::Result<()>
+impl core::ops::drop::Drop for udoc::hooks::HookRunner
+pub fn udoc::hooks::HookRunner::drop(&mut self)
+impl core::marker::Freeze for udoc::hooks::HookRunner
+impl core::marker::Send for udoc::hooks::HookRunner
+impl !core::marker::Sync for udoc::hooks::HookRunner
+impl core::marker::Unpin for udoc::hooks::HookRunner
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc::hooks::HookRunner
+impl !core::panic::unwind_safe::UnwindSafe for udoc::hooks::HookRunner
+#[non_exhaustive] pub struct udoc::hooks::HookSpec
+pub udoc::hooks::HookSpec::args: alloc::vec::Vec<alloc::string::String>
+pub udoc::hooks::HookSpec::command: alloc::string::String
+impl udoc::hooks::HookSpec
+pub fn udoc::hooks::HookSpec::from_command(cmd: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc::hooks::HookSpec::new(command: impl core::convert::Into<alloc::string::String>, args: alloc::vec::Vec<alloc::string::String>) -> Self
+pub fn udoc::hooks::HookSpec::validate(&self) -> udoc_core::error::Result<()>
+impl core::clone::Clone for udoc::hooks::HookSpec
+pub fn udoc::hooks::HookSpec::clone(&self) -> udoc::hooks::HookSpec
+impl core::fmt::Debug for udoc::hooks::HookSpec
+pub fn udoc::hooks::HookSpec::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::hooks::HookSpec
+impl core::marker::Send for udoc::hooks::HookSpec
+impl core::marker::Sync for udoc::hooks::HookSpec
+impl core::marker::Unpin for udoc::hooks::HookSpec
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::hooks::HookSpec
+impl core::panic::unwind_safe::UnwindSafe for udoc::hooks::HookSpec
+pub mod udoc::page
+pub use udoc::page::ImageFilter
+pub use udoc::page::PageImage
+pub use udoc::page::PageTable
+pub use udoc::page::PageTableCell
+pub use udoc::page::PageTableRow
+pub use udoc::page::TextLine
+pub use udoc::page::TextSpan
+pub mod udoc::render
+pub use udoc::render::DEFAULT_DPI
+pub use udoc::render::RenderingProfile
+pub use udoc::render::render_page
+pub use udoc::render::render_page_rgb
+pub use udoc::render::render_page_rgb_with_profile
+pub use udoc::render::render_page_with_profile
+#[non_exhaustive] pub enum udoc::Format
+pub udoc::Format::Doc
+pub udoc::Format::Docx
+pub udoc::Format::Md
+pub udoc::Format::Odp
+pub udoc::Format::Ods
+pub udoc::Format::Odt
+pub udoc::Format::Pdf
+pub udoc::Format::Ppt
+pub udoc::Format::Pptx
+pub udoc::Format::Rtf
+pub udoc::Format::Xls
+pub udoc::Format::Xlsx
+impl udoc::detect::Format
+pub fn udoc::detect::Format::can_render(&self) -> bool
+pub fn udoc::detect::Format::extension(&self) -> &'static str
+pub fn udoc::detect::Format::has_pages(&self) -> bool
+pub fn udoc::detect::Format::has_tables(&self) -> bool
+pub fn udoc::detect::Format::mime_type(&self) -> &'static str
+impl core::clone::Clone for udoc::detect::Format
+pub fn udoc::detect::Format::clone(&self) -> udoc::detect::Format
+impl core::cmp::Eq for udoc::detect::Format
+impl core::cmp::PartialEq for udoc::detect::Format
+pub fn udoc::detect::Format::eq(&self, other: &udoc::detect::Format) -> bool
+impl core::fmt::Debug for udoc::detect::Format
+pub fn udoc::detect::Format::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc::detect::Format
+pub fn udoc::detect::Format::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for udoc::detect::Format
+pub fn udoc::detect::Format::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for udoc::detect::Format
+impl core::marker::StructuralPartialEq for udoc::detect::Format
+impl core::marker::Freeze for udoc::detect::Format
+impl core::marker::Send for udoc::detect::Format
+impl core::marker::Sync for udoc::detect::Format
+impl core::marker::Unpin for udoc::detect::Format
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::detect::Format
+impl core::panic::unwind_safe::UnwindSafe for udoc::detect::Format
+#[non_exhaustive] pub struct udoc::Config
+pub udoc::Config::assets: udoc_core::document::assets::AssetConfig
+pub udoc::Config::collect_diagnostics: bool
+pub udoc::Config::diagnostics: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>
+pub udoc::Config::format: core::option::Option<udoc::detect::Format>
+pub udoc::Config::layers: udoc_core::backend::LayerConfig
+pub udoc::Config::limits: udoc_core::limits::Limits
+pub udoc::Config::page_range: core::option::Option<udoc::config::PageRange>
+pub udoc::Config::password: core::option::Option<alloc::string::String>
+pub udoc::Config::rendering_profile: udoc_render::RenderingProfile
+impl udoc::config::Config
+pub fn udoc::config::Config::assets(self, config: udoc_core::document::assets::AssetConfig) -> Self
+pub fn udoc::config::Config::collect_diagnostics(self, on: bool) -> Self
+pub fn udoc::config::Config::diagnostics(self, sink: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>) -> Self
+pub fn udoc::config::Config::format(self, format: udoc::detect::Format) -> Self
+pub fn udoc::config::Config::layers(self, layers: udoc_core::backend::LayerConfig) -> Self
+pub fn udoc::config::Config::limits(self, limits: udoc_core::limits::Limits) -> Self
+pub fn udoc::config::Config::new() -> Self
+pub fn udoc::config::Config::pages(self, spec: &str) -> udoc_core::error::Result<Self>
+pub fn udoc::config::Config::password(self, password: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc::config::Config::rendering_profile(self, profile: udoc_render::RenderingProfile) -> Self
+impl core::clone::Clone for udoc::config::Config
+pub fn udoc::config::Config::clone(&self) -> udoc::config::Config
+impl core::default::Default for udoc::config::Config
+pub fn udoc::config::Config::default() -> Self
+impl core::fmt::Debug for udoc::config::Config
+pub fn udoc::config::Config::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::config::Config
+impl core::marker::Send for udoc::config::Config
+impl core::marker::Sync for udoc::config::Config
+impl core::marker::Unpin for udoc::config::Config
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc::config::Config
+impl !core::panic::unwind_safe::UnwindSafe for udoc::config::Config
+pub struct udoc::Extractor
+impl udoc::extractor::Extractor
+pub fn udoc::extractor::Extractor::diagnostics(&self) -> alloc::vec::Vec<udoc_core::diagnostics::Warning>
+pub fn udoc::extractor::Extractor::format(&self) -> udoc::detect::Format
+pub fn udoc::extractor::Extractor::from_bytes(data: &[u8]) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::from_bytes_with(data: &[u8], config: udoc::config::Config) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::into_document(self) -> udoc_core::error::Result<udoc_core::document::Document>
+pub fn udoc::extractor::Extractor::into_document_with_assets(self) -> udoc_core::error::Result<(udoc_core::document::Document, udoc_core::document::assets::AssetStore)>
+pub fn udoc::extractor::Extractor::is_encrypted(&self) -> bool
+pub fn udoc::extractor::Extractor::metadata(&self) -> udoc_core::document::DocumentMetadata
+pub fn udoc::extractor::Extractor::open(path: impl core::convert::AsRef<std::path::Path>) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::open_with(path: impl core::convert::AsRef<std::path::Path>, config: udoc::config::Config) -> udoc_core::error::Result<Self>
+pub fn udoc::extractor::Extractor::page_count(&self) -> usize
+pub fn udoc::extractor::Extractor::page_images(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::image::PageImage>>
+pub fn udoc::extractor::Extractor::page_lines(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextLine>>
+pub fn udoc::extractor::Extractor::page_spans(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextSpan>>
+pub fn udoc::extractor::Extractor::page_tables(&mut self, index: usize) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::table::Table>>
+pub fn udoc::extractor::Extractor::page_text(&mut self, index: usize) -> udoc_core::error::Result<alloc::string::String>
+pub fn udoc::extractor::Extractor::reset_document_caches(&mut self)
+pub fn udoc::extractor::Extractor::text(&mut self) -> udoc_core::error::Result<alloc::string::String>
+impl core::marker::Freeze for udoc::extractor::Extractor
+impl core::marker::Send for udoc::extractor::Extractor
+impl !core::marker::Sync for udoc::extractor::Extractor
+impl core::marker::Unpin for udoc::extractor::Extractor
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc::extractor::Extractor
+impl !core::panic::unwind_safe::UnwindSafe for udoc::extractor::Extractor
+pub struct udoc::PageRange
+impl udoc::config::PageRange
+pub fn udoc::config::PageRange::contains(&self, index: usize) -> bool
+pub fn udoc::config::PageRange::is_empty(&self) -> bool
+pub fn udoc::config::PageRange::iter(&self) -> impl core::iter::traits::iterator::Iterator<Item = usize> + '_
+pub fn udoc::config::PageRange::len(&self) -> usize
+pub fn udoc::config::PageRange::parse(spec: &str) -> udoc_core::error::Result<Self>
+impl core::clone::Clone for udoc::config::PageRange
+pub fn udoc::config::PageRange::clone(&self) -> udoc::config::PageRange
+impl core::fmt::Debug for udoc::config::PageRange
+pub fn udoc::config::PageRange::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc::config::PageRange
+impl core::marker::Send for udoc::config::PageRange
+impl core::marker::Sync for udoc::config::PageRange
+impl core::marker::Unpin for udoc::config::PageRange
+impl core::panic::unwind_safe::RefUnwindSafe for udoc::config::PageRange
+impl core::panic::unwind_safe::UnwindSafe for udoc::config::PageRange
+pub fn udoc::extract(path: impl core::convert::AsRef<std::path::Path>) -> udoc_core::error::Result<udoc_core::document::Document>
+pub fn udoc::extract_bytes(data: &[u8]) -> udoc_core::error::Result<udoc_core::document::Document>
+pub fn udoc::extract_bytes_with(data: &[u8], config: udoc::config::Config) -> udoc_core::error::Result<udoc_core::document::Document>
+pub fn udoc::extract_with(path: impl core::convert::AsRef<std::path::Path>, config: udoc::config::Config) -> udoc_core::error::Result<udoc_core::document::Document>

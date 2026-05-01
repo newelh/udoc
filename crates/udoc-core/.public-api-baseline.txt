@@ -1,0 +1,893 @@
+pub mod udoc_core
+pub mod udoc_core::backend
+#[non_exhaustive] pub struct udoc_core::backend::DocumentMetadata
+pub udoc_core::backend::DocumentMetadata::author: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::creation_date: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::creator: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::modification_date: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::page_count: usize
+pub udoc_core::backend::DocumentMetadata::producer: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::properties: std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::subject: core::option::Option<alloc::string::String>
+pub udoc_core::backend::DocumentMetadata::title: core::option::Option<alloc::string::String>
+impl udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::with_page_count(page_count: usize) -> Self
+impl core::clone::Clone for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::clone(&self) -> udoc_core::document::DocumentMetadata
+impl core::default::Default for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::default() -> udoc_core::document::DocumentMetadata
+impl core::fmt::Debug for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::document::DocumentMetadata
+impl core::marker::Send for udoc_core::document::DocumentMetadata
+impl core::marker::Sync for udoc_core::document::DocumentMetadata
+impl core::marker::Unpin for udoc_core::document::DocumentMetadata
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::document::DocumentMetadata
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::document::DocumentMetadata
+#[non_exhaustive] pub struct udoc_core::backend::LayerConfig
+pub udoc_core::backend::LayerConfig::images: bool
+pub udoc_core::backend::LayerConfig::interactions: bool
+pub udoc_core::backend::LayerConfig::presentation: bool
+pub udoc_core::backend::LayerConfig::relationships: bool
+pub udoc_core::backend::LayerConfig::tables: bool
+impl udoc_core::backend::LayerConfig
+pub fn udoc_core::backend::LayerConfig::content_only() -> Self
+impl core::clone::Clone for udoc_core::backend::LayerConfig
+pub fn udoc_core::backend::LayerConfig::clone(&self) -> udoc_core::backend::LayerConfig
+impl core::default::Default for udoc_core::backend::LayerConfig
+pub fn udoc_core::backend::LayerConfig::default() -> Self
+impl core::fmt::Debug for udoc_core::backend::LayerConfig
+pub fn udoc_core::backend::LayerConfig::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for udoc_core::backend::LayerConfig
+impl core::marker::Freeze for udoc_core::backend::LayerConfig
+impl core::marker::Send for udoc_core::backend::LayerConfig
+impl core::marker::Sync for udoc_core::backend::LayerConfig
+impl core::marker::Unpin for udoc_core::backend::LayerConfig
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::backend::LayerConfig
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::backend::LayerConfig
+pub struct udoc_core::backend::PageBundle
+pub udoc_core::backend::PageBundle::images: alloc::vec::Vec<udoc_core::image::PageImage>
+pub udoc_core::backend::PageBundle::lines: alloc::vec::Vec<udoc_core::text::TextLine>
+pub udoc_core::backend::PageBundle::tables: alloc::vec::Vec<udoc_core::table::Table>
+impl udoc_core::backend::PageBundle
+pub fn udoc_core::backend::PageBundle::text(&self) -> alloc::string::String
+impl core::clone::Clone for udoc_core::backend::PageBundle
+pub fn udoc_core::backend::PageBundle::clone(&self) -> udoc_core::backend::PageBundle
+impl core::default::Default for udoc_core::backend::PageBundle
+pub fn udoc_core::backend::PageBundle::default() -> udoc_core::backend::PageBundle
+impl core::fmt::Debug for udoc_core::backend::PageBundle
+pub fn udoc_core::backend::PageBundle::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::backend::PageBundle
+impl core::marker::Send for udoc_core::backend::PageBundle
+impl core::marker::Sync for udoc_core::backend::PageBundle
+impl core::marker::Unpin for udoc_core::backend::PageBundle
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::backend::PageBundle
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::backend::PageBundle
+pub trait udoc_core::backend::FormatBackend
+pub type udoc_core::backend::FormatBackend::Page<'a> where Self: 'a: udoc_core::backend::PageExtractor
+pub fn udoc_core::backend::FormatBackend::is_encrypted(&self) -> bool
+pub fn udoc_core::backend::FormatBackend::metadata(&self) -> udoc_core::document::DocumentMetadata
+pub fn udoc_core::backend::FormatBackend::page(&mut self, index: usize) -> udoc_core::error::Result<Self::Page>
+pub fn udoc_core::backend::FormatBackend::page_count(&self) -> usize
+pub trait udoc_core::backend::PageExtractor
+pub fn udoc_core::backend::PageExtractor::bundle(&mut self, layers: &udoc_core::backend::LayerConfig) -> udoc_core::error::Result<udoc_core::backend::PageBundle>
+pub fn udoc_core::backend::PageExtractor::images(&mut self) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::image::PageImage>>
+pub fn udoc_core::backend::PageExtractor::page_bbox(&mut self) -> core::option::Option<udoc_core::geometry::BoundingBox>
+pub fn udoc_core::backend::PageExtractor::raw_spans(&mut self) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextSpan>>
+pub fn udoc_core::backend::PageExtractor::rotation(&mut self) -> u16
+pub fn udoc_core::backend::PageExtractor::tables(&mut self) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::table::Table>>
+pub fn udoc_core::backend::PageExtractor::text(&mut self) -> udoc_core::error::Result<alloc::string::String>
+pub fn udoc_core::backend::PageExtractor::text_lines(&mut self) -> udoc_core::error::Result<alloc::vec::Vec<udoc_core::text::TextLine>>
+pub fn udoc_core::backend::validate_single_page(index: usize, unit: &str) -> udoc_core::error::Result<()>
+pub mod udoc_core::codepage
+pub struct udoc_core::codepage::CodepageDecoder
+impl udoc_core::codepage::CodepageDecoder
+pub fn udoc_core::codepage::CodepageDecoder::flush(&mut self) -> alloc::string::String
+pub fn udoc_core::codepage::CodepageDecoder::is_empty(&self) -> bool
+pub fn udoc_core::codepage::CodepageDecoder::new(encoding: &'static encoding_rs::Encoding) -> Self
+pub fn udoc_core::codepage::CodepageDecoder::push_byte(&mut self, byte: u8)
+pub fn udoc_core::codepage::CodepageDecoder::set_encoding(&mut self, encoding: &'static encoding_rs::Encoding)
+impl core::marker::Freeze for udoc_core::codepage::CodepageDecoder
+impl core::marker::Send for udoc_core::codepage::CodepageDecoder
+impl core::marker::Sync for udoc_core::codepage::CodepageDecoder
+impl core::marker::Unpin for udoc_core::codepage::CodepageDecoder
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::codepage::CodepageDecoder
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::codepage::CodepageDecoder
+pub fn udoc_core::codepage::encoding_for_ansicpg(cpg: u16) -> &'static encoding_rs::Encoding
+pub fn udoc_core::codepage::encoding_for_charset(charset: u8) -> &'static encoding_rs::Encoding
+pub fn udoc_core::codepage::encoding_for_codepage(cpg: u16) -> &'static encoding_rs::Encoding
+pub fn udoc_core::codepage::is_approximate_codepage(cpg: u16) -> bool
+pub mod udoc_core::diagnostics
+pub mod udoc_core::diagnostics::kind
+pub const udoc_core::diagnostics::kind::MISSING_GLYPH: &str
+#[non_exhaustive] pub enum udoc_core::diagnostics::WarningKind
+pub udoc_core::diagnostics::WarningKind::Custom(alloc::string::String)
+pub udoc_core::diagnostics::WarningKind::DecodeError
+pub udoc_core::diagnostics::WarningKind::EncryptedDocument
+pub udoc_core::diagnostics::WarningKind::FallbackFontSubstitution
+pub udoc_core::diagnostics::WarningKind::FontError
+pub udoc_core::diagnostics::WarningKind::FontLoaded
+pub udoc_core::diagnostics::WarningKind::FontMetricsDisagreement
+pub udoc_core::diagnostics::WarningKind::GarbageBytes
+pub udoc_core::diagnostics::WarningKind::InvalidImageMetadata
+pub udoc_core::diagnostics::WarningKind::InvalidPageTree
+pub udoc_core::diagnostics::WarningKind::InvalidState
+pub udoc_core::diagnostics::WarningKind::MalformedString
+pub udoc_core::diagnostics::WarningKind::MalformedToken
+pub udoc_core::diagnostics::WarningKind::MalformedXref
+pub udoc_core::diagnostics::WarningKind::MissingEndObj
+pub udoc_core::diagnostics::WarningKind::MissingGlyph
+pub udoc_core::diagnostics::WarningKind::ObjectHeaderMismatch
+pub udoc_core::diagnostics::WarningKind::PageTreeCycle
+pub udoc_core::diagnostics::WarningKind::ReadingOrder
+pub udoc_core::diagnostics::WarningKind::ResourceLimit
+pub udoc_core::diagnostics::WarningKind::StreamExtendsPastEof
+pub udoc_core::diagnostics::WarningKind::StreamLengthMismatch
+pub udoc_core::diagnostics::WarningKind::TierSelection
+pub udoc_core::diagnostics::WarningKind::UnexpectedToken
+pub udoc_core::diagnostics::WarningKind::UnknownKeyword
+pub udoc_core::diagnostics::WarningKind::UnsupportedFeature
+pub udoc_core::diagnostics::WarningKind::UnsupportedFilter
+pub udoc_core::diagnostics::WarningKind::UnsupportedPatternType
+pub udoc_core::diagnostics::WarningKind::UnsupportedShadingType
+pub udoc_core::diagnostics::WarningKind::UnterminatedCollection
+pub udoc_core::diagnostics::WarningKind::WarningLimitReached
+pub udoc_core::diagnostics::WarningKind::WarningsTruncated
+pub udoc_core::diagnostics::WarningKind::WarningsTruncated::suppressed: usize
+impl udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::as_str(&self) -> &str
+impl core::clone::Clone for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::clone(&self) -> udoc_core::diagnostics::WarningKind
+impl core::cmp::Eq for udoc_core::diagnostics::WarningKind
+impl core::cmp::PartialEq for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::eq(&self, other: &udoc_core::diagnostics::WarningKind) -> bool
+impl core::cmp::PartialEq<&str> for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::eq(&self, other: &&str) -> bool
+impl core::cmp::PartialEq<str> for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::eq(&self, other: &str) -> bool
+impl core::cmp::PartialEq<udoc_core::diagnostics::WarningKind> for &str
+pub fn &str::eq(&self, other: &udoc_core::diagnostics::WarningKind) -> bool
+impl core::cmp::PartialEq<udoc_core::diagnostics::WarningKind> for str
+pub fn str::eq(&self, other: &udoc_core::diagnostics::WarningKind) -> bool
+impl core::convert::From<&str> for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::from(s: &str) -> Self
+impl core::convert::From<alloc::string::String> for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::from(s: alloc::string::String) -> Self
+impl core::fmt::Debug for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for udoc_core::diagnostics::WarningKind
+pub fn udoc_core::diagnostics::WarningKind::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for udoc_core::diagnostics::WarningKind
+impl core::marker::Freeze for udoc_core::diagnostics::WarningKind
+impl core::marker::Send for udoc_core::diagnostics::WarningKind
+impl core::marker::Sync for udoc_core::diagnostics::WarningKind
+impl core::marker::Unpin for udoc_core::diagnostics::WarningKind
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::WarningKind
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::WarningKind
+#[non_exhaustive] pub enum udoc_core::diagnostics::WarningLevel
+pub udoc_core::diagnostics::WarningLevel::Info
+pub udoc_core::diagnostics::WarningLevel::Warning
+impl core::clone::Clone for udoc_core::diagnostics::WarningLevel
+pub fn udoc_core::diagnostics::WarningLevel::clone(&self) -> udoc_core::diagnostics::WarningLevel
+impl core::cmp::Eq for udoc_core::diagnostics::WarningLevel
+impl core::cmp::PartialEq for udoc_core::diagnostics::WarningLevel
+pub fn udoc_core::diagnostics::WarningLevel::eq(&self, other: &udoc_core::diagnostics::WarningLevel) -> bool
+impl core::fmt::Debug for udoc_core::diagnostics::WarningLevel
+pub fn udoc_core::diagnostics::WarningLevel::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for udoc_core::diagnostics::WarningLevel
+impl core::marker::StructuralPartialEq for udoc_core::diagnostics::WarningLevel
+impl core::marker::Freeze for udoc_core::diagnostics::WarningLevel
+impl core::marker::Send for udoc_core::diagnostics::WarningLevel
+impl core::marker::Sync for udoc_core::diagnostics::WarningLevel
+impl core::marker::Unpin for udoc_core::diagnostics::WarningLevel
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::WarningLevel
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::WarningLevel
+pub struct udoc_core::diagnostics::CollectingDiagnostics
+impl udoc_core::diagnostics::CollectingDiagnostics
+pub fn udoc_core::diagnostics::CollectingDiagnostics::new() -> Self
+pub fn udoc_core::diagnostics::CollectingDiagnostics::take_warnings(&self) -> alloc::vec::Vec<udoc_core::diagnostics::Warning>
+pub fn udoc_core::diagnostics::CollectingDiagnostics::warnings(&self) -> alloc::vec::Vec<udoc_core::diagnostics::Warning>
+pub fn udoc_core::diagnostics::CollectingDiagnostics::with_max_warnings(max_warnings: usize) -> Self
+impl core::default::Default for udoc_core::diagnostics::CollectingDiagnostics
+pub fn udoc_core::diagnostics::CollectingDiagnostics::default() -> Self
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::CollectingDiagnostics
+pub fn udoc_core::diagnostics::CollectingDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::CollectingDiagnostics::warning(&self, warning: udoc_core::diagnostics::Warning)
+impl !core::marker::Freeze for udoc_core::diagnostics::CollectingDiagnostics
+impl core::marker::Send for udoc_core::diagnostics::CollectingDiagnostics
+impl core::marker::Sync for udoc_core::diagnostics::CollectingDiagnostics
+impl core::marker::Unpin for udoc_core::diagnostics::CollectingDiagnostics
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::CollectingDiagnostics
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::CollectingDiagnostics
+pub struct udoc_core::diagnostics::MissingGlyphInfo
+pub udoc_core::diagnostics::MissingGlyphInfo::codepoint: u32
+pub udoc_core::diagnostics::MissingGlyphInfo::font: alloc::string::String
+pub udoc_core::diagnostics::MissingGlyphInfo::glyph_id: u32
+impl core::clone::Clone for udoc_core::diagnostics::MissingGlyphInfo
+pub fn udoc_core::diagnostics::MissingGlyphInfo::clone(&self) -> udoc_core::diagnostics::MissingGlyphInfo
+impl core::cmp::Eq for udoc_core::diagnostics::MissingGlyphInfo
+impl core::cmp::PartialEq for udoc_core::diagnostics::MissingGlyphInfo
+pub fn udoc_core::diagnostics::MissingGlyphInfo::eq(&self, other: &udoc_core::diagnostics::MissingGlyphInfo) -> bool
+impl core::fmt::Debug for udoc_core::diagnostics::MissingGlyphInfo
+pub fn udoc_core::diagnostics::MissingGlyphInfo::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for udoc_core::diagnostics::MissingGlyphInfo
+pub fn udoc_core::diagnostics::MissingGlyphInfo::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::StructuralPartialEq for udoc_core::diagnostics::MissingGlyphInfo
+impl core::marker::Freeze for udoc_core::diagnostics::MissingGlyphInfo
+impl core::marker::Send for udoc_core::diagnostics::MissingGlyphInfo
+impl core::marker::Sync for udoc_core::diagnostics::MissingGlyphInfo
+impl core::marker::Unpin for udoc_core::diagnostics::MissingGlyphInfo
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::MissingGlyphInfo
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::MissingGlyphInfo
+pub struct udoc_core::diagnostics::NullDiagnostics
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::NullDiagnostics
+pub fn udoc_core::diagnostics::NullDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::NullDiagnostics::warning(&self, _warning: udoc_core::diagnostics::Warning)
+impl core::marker::Freeze for udoc_core::diagnostics::NullDiagnostics
+impl core::marker::Send for udoc_core::diagnostics::NullDiagnostics
+impl core::marker::Sync for udoc_core::diagnostics::NullDiagnostics
+impl core::marker::Unpin for udoc_core::diagnostics::NullDiagnostics
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::NullDiagnostics
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::NullDiagnostics
+pub struct udoc_core::diagnostics::TeeDiagnostics
+impl udoc_core::diagnostics::TeeDiagnostics
+pub fn udoc_core::diagnostics::TeeDiagnostics::new(primary: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>, secondary: alloc::sync::Arc<dyn udoc_core::diagnostics::DiagnosticsSink>) -> Self
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::TeeDiagnostics
+pub fn udoc_core::diagnostics::TeeDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::TeeDiagnostics::warning(&self, warning: udoc_core::diagnostics::Warning)
+impl core::marker::Freeze for udoc_core::diagnostics::TeeDiagnostics
+impl core::marker::Send for udoc_core::diagnostics::TeeDiagnostics
+impl core::marker::Sync for udoc_core::diagnostics::TeeDiagnostics
+impl core::marker::Unpin for udoc_core::diagnostics::TeeDiagnostics
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::TeeDiagnostics
+impl !core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::TeeDiagnostics
+#[non_exhaustive] pub struct udoc_core::diagnostics::Warning
+pub udoc_core::diagnostics::Warning::context: udoc_core::diagnostics::WarningContext
+pub udoc_core::diagnostics::Warning::kind: udoc_core::diagnostics::WarningKind
+pub udoc_core::diagnostics::Warning::level: udoc_core::diagnostics::WarningLevel
+pub udoc_core::diagnostics::Warning::message: alloc::string::String
+pub udoc_core::diagnostics::Warning::offset: core::option::Option<u64>
+impl udoc_core::diagnostics::Warning
+pub fn udoc_core::diagnostics::Warning::at_offset(self, offset: u64) -> Self
+pub fn udoc_core::diagnostics::Warning::missing_glyph(info: udoc_core::diagnostics::MissingGlyphInfo) -> Self
+pub fn udoc_core::diagnostics::Warning::new(kind: impl core::convert::Into<udoc_core::diagnostics::WarningKind>, message: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc_core::diagnostics::Warning::with_context(self, context: udoc_core::diagnostics::WarningContext) -> Self
+pub fn udoc_core::diagnostics::Warning::with_level(self, level: udoc_core::diagnostics::WarningLevel) -> Self
+impl core::clone::Clone for udoc_core::diagnostics::Warning
+pub fn udoc_core::diagnostics::Warning::clone(&self) -> udoc_core::diagnostics::Warning
+impl core::fmt::Debug for udoc_core::diagnostics::Warning
+pub fn udoc_core::diagnostics::Warning::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::diagnostics::Warning
+impl core::marker::Send for udoc_core::diagnostics::Warning
+impl core::marker::Sync for udoc_core::diagnostics::Warning
+impl core::marker::Unpin for udoc_core::diagnostics::Warning
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::Warning
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::Warning
+#[non_exhaustive] pub struct udoc_core::diagnostics::WarningContext
+pub udoc_core::diagnostics::WarningContext::detail: core::option::Option<alloc::string::String>
+pub udoc_core::diagnostics::WarningContext::missing_glyph: core::option::Option<udoc_core::diagnostics::MissingGlyphInfo>
+pub udoc_core::diagnostics::WarningContext::page_index: core::option::Option<usize>
+impl core::clone::Clone for udoc_core::diagnostics::WarningContext
+pub fn udoc_core::diagnostics::WarningContext::clone(&self) -> udoc_core::diagnostics::WarningContext
+impl core::default::Default for udoc_core::diagnostics::WarningContext
+pub fn udoc_core::diagnostics::WarningContext::default() -> udoc_core::diagnostics::WarningContext
+impl core::fmt::Debug for udoc_core::diagnostics::WarningContext
+pub fn udoc_core::diagnostics::WarningContext::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::diagnostics::WarningContext
+impl core::marker::Send for udoc_core::diagnostics::WarningContext
+impl core::marker::Sync for udoc_core::diagnostics::WarningContext
+impl core::marker::Unpin for udoc_core::diagnostics::WarningContext
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::diagnostics::WarningContext
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::diagnostics::WarningContext
+pub trait udoc_core::diagnostics::DiagnosticsSink: core::marker::Send + core::marker::Sync
+pub fn udoc_core::diagnostics::DiagnosticsSink::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::DiagnosticsSink::warning(&self, warning: udoc_core::diagnostics::Warning)
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::CollectingDiagnostics
+pub fn udoc_core::diagnostics::CollectingDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::CollectingDiagnostics::warning(&self, warning: udoc_core::diagnostics::Warning)
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::NullDiagnostics
+pub fn udoc_core::diagnostics::NullDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::NullDiagnostics::warning(&self, _warning: udoc_core::diagnostics::Warning)
+impl udoc_core::diagnostics::DiagnosticsSink for udoc_core::diagnostics::TeeDiagnostics
+pub fn udoc_core::diagnostics::TeeDiagnostics::info(&self, warning: udoc_core::diagnostics::Warning)
+pub fn udoc_core::diagnostics::TeeDiagnostics::warning(&self, warning: udoc_core::diagnostics::Warning)
+pub mod udoc_core::document
+pub use udoc_core::document::Alignment
+pub use udoc_core::document::AssetConfig
+pub use udoc_core::document::AssetRef
+pub use udoc_core::document::AssetStore
+pub use udoc_core::document::Block
+pub use udoc_core::document::BlockLayout
+pub use udoc_core::document::BookmarkAddResult
+pub use udoc_core::document::BookmarkTarget
+pub use udoc_core::document::CellValue
+pub use udoc_core::document::ChangeType
+pub use udoc_core::document::ClipRegion
+pub use udoc_core::document::ClipRegionFillRule
+pub use udoc_core::document::ColSpec
+pub use udoc_core::document::Color
+pub use udoc_core::document::Comment
+pub use udoc_core::document::ComponentRef
+pub use udoc_core::document::ExtendedTextStyle
+pub use udoc_core::document::FillRule
+pub use udoc_core::document::FlowDirection
+pub use udoc_core::document::FontAsset
+pub use udoc_core::document::FontProgramType
+pub use udoc_core::document::FootnoteAddResult
+pub use udoc_core::document::FootnoteDef
+pub use udoc_core::document::FormField
+pub use udoc_core::document::FormFieldType
+pub use udoc_core::document::ImageAsset
+pub use udoc_core::document::ImageData
+pub use udoc_core::document::ImagePlacement
+pub use udoc_core::document::ImageRef
+pub use udoc_core::document::Inline
+pub use udoc_core::document::Interactions
+pub use udoc_core::document::LayoutInfo
+pub use udoc_core::document::LayoutMode
+pub use udoc_core::document::ListItem
+pub use udoc_core::document::ListKind
+pub use udoc_core::document::Overlay
+pub use udoc_core::document::Padding
+pub use udoc_core::document::PageDef
+pub use udoc_core::document::PageShape
+pub use udoc_core::document::PaintLineCap
+pub use udoc_core::document::PaintLineJoin
+pub use udoc_core::document::PaintPath
+pub use udoc_core::document::PaintPattern
+pub use udoc_core::document::PaintSegment
+pub use udoc_core::document::PaintShading
+pub use udoc_core::document::PaintShadingKind
+pub use udoc_core::document::PaintStroke
+pub use udoc_core::document::PathShapeKind
+pub use udoc_core::document::PositionedSpan
+pub use udoc_core::document::Presentation
+pub use udoc_core::document::Relationships
+pub use udoc_core::document::SectionRole
+pub use udoc_core::document::ShapeKind
+pub use udoc_core::document::SoftMaskLayer
+pub use udoc_core::document::SoftMaskSubtype
+pub use udoc_core::document::SpanStyle
+pub use udoc_core::document::SparseOverlay
+pub use udoc_core::document::TableCell
+pub use udoc_core::document::TableData
+pub use udoc_core::document::TableRow
+pub use udoc_core::document::TocEntry
+pub use udoc_core::document::TrackedChange
+#[non_exhaustive] pub struct udoc_core::document::Document
+pub udoc_core::document::Document::assets: AssetStore
+pub udoc_core::document::Document::content: alloc::vec::Vec<Block>
+pub udoc_core::document::Document::interactions: core::option::Option<Interactions>
+pub udoc_core::document::Document::metadata: udoc_core::document::DocumentMetadata
+pub udoc_core::document::Document::presentation: core::option::Option<Presentation>
+pub udoc_core::document::Document::relationships: core::option::Option<Relationships>
+impl udoc_core::document::Document
+pub fn udoc_core::document::Document::alloc_node_id(&self) -> udoc_core::document::NodeId
+pub fn udoc_core::document::Document::diagnostics(&self) -> &[udoc_core::diagnostics::Warning]
+pub fn udoc_core::document::Document::interactions_for(&self, node: udoc_core::document::NodeId) -> core::option::Option<&Interactions>
+pub fn udoc_core::document::Document::interactions_for_mut(&mut self, node: udoc_core::document::NodeId) -> core::option::Option<&mut Interactions>
+pub fn udoc_core::document::Document::is_encrypted(&self) -> bool
+pub fn udoc_core::document::Document::new() -> Self
+pub fn udoc_core::document::Document::presentation_for(&self, node: udoc_core::document::NodeId) -> core::option::Option<&Presentation>
+pub fn udoc_core::document::Document::presentation_for_mut(&mut self, node: udoc_core::document::NodeId) -> core::option::Option<&mut Presentation>
+pub fn udoc_core::document::Document::relationships_for(&self, node: udoc_core::document::NodeId) -> core::option::Option<&Relationships>
+pub fn udoc_core::document::Document::relationships_for_mut(&mut self, node: udoc_core::document::NodeId) -> core::option::Option<&mut Relationships>
+pub fn udoc_core::document::Document::try_alloc_node_id(&self) -> core::option::Option<udoc_core::document::NodeId>
+pub fn udoc_core::document::Document::walk<F: core::ops::function::FnMut(&Block)>(&self, f: &mut F)
+pub fn udoc_core::document::Document::walk_mut<F: core::ops::function::FnMut(&mut Block)>(&mut self, f: &mut F)
+impl core::clone::Clone for udoc_core::document::Document
+pub fn udoc_core::document::Document::clone(&self) -> Self
+impl core::default::Default for udoc_core::document::Document
+pub fn udoc_core::document::Document::default() -> Self
+impl core::fmt::Debug for udoc_core::document::Document
+pub fn udoc_core::document::Document::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for udoc_core::document::Document
+impl core::marker::Send for udoc_core::document::Document
+impl core::marker::Sync for udoc_core::document::Document
+impl core::marker::Unpin for udoc_core::document::Document
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::document::Document
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::document::Document
+#[non_exhaustive] pub struct udoc_core::document::DocumentMetadata
+pub udoc_core::document::DocumentMetadata::author: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::creation_date: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::creator: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::modification_date: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::page_count: usize
+pub udoc_core::document::DocumentMetadata::producer: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::properties: std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>
+pub udoc_core::document::DocumentMetadata::subject: core::option::Option<alloc::string::String>
+pub udoc_core::document::DocumentMetadata::title: core::option::Option<alloc::string::String>
+impl udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::with_page_count(page_count: usize) -> Self
+impl core::clone::Clone for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::clone(&self) -> udoc_core::document::DocumentMetadata
+impl core::default::Default for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::default() -> udoc_core::document::DocumentMetadata
+impl core::fmt::Debug for udoc_core::document::DocumentMetadata
+pub fn udoc_core::document::DocumentMetadata::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::document::DocumentMetadata
+impl core::marker::Send for udoc_core::document::DocumentMetadata
+impl core::marker::Sync for udoc_core::document::DocumentMetadata
+impl core::marker::Unpin for udoc_core::document::DocumentMetadata
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::document::DocumentMetadata
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::document::DocumentMetadata
+pub struct udoc_core::document::NodeId(_)
+impl udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::new(val: u64) -> Self
+pub fn udoc_core::document::NodeId::value(&self) -> u64
+impl core::clone::Clone for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::clone(&self) -> udoc_core::document::NodeId
+impl core::cmp::Eq for udoc_core::document::NodeId
+impl core::cmp::Ord for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::cmp(&self, other: &udoc_core::document::NodeId) -> core::cmp::Ordering
+impl core::cmp::PartialEq for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::eq(&self, other: &udoc_core::document::NodeId) -> bool
+impl core::cmp::PartialOrd for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::partial_cmp(&self, other: &udoc_core::document::NodeId) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for udoc_core::document::NodeId
+pub fn udoc_core::document::NodeId::hash<__H: core::hash::Hasher>(&self, state: &mut __H)
+impl core::marker::Copy for udoc_core::document::NodeId
+impl core::marker::StructuralPartialEq for udoc_core::document::NodeId
+impl core::marker::Freeze for udoc_core::document::NodeId
+impl core::marker::Send for udoc_core::document::NodeId
+impl core::marker::Sync for udoc_core::document::NodeId
+impl core::marker::Unpin for udoc_core::document::NodeId
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::document::NodeId
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::document::NodeId
+pub mod udoc_core::error
+pub enum udoc_core::error::EncryptionReason
+pub udoc_core::error::EncryptionReason::Malformed(alloc::string::String)
+pub udoc_core::error::EncryptionReason::Other(alloc::string::String)
+pub udoc_core::error::EncryptionReason::PasswordRequired
+pub udoc_core::error::EncryptionReason::UnsupportedAlgorithm(alloc::string::String)
+pub udoc_core::error::EncryptionReason::WrongPassword
+impl udoc_core::error::EncryptionReason
+pub fn udoc_core::error::EncryptionReason::as_str(&self) -> &'static str
+impl core::clone::Clone for udoc_core::error::EncryptionReason
+pub fn udoc_core::error::EncryptionReason::clone(&self) -> udoc_core::error::EncryptionReason
+impl core::cmp::Eq for udoc_core::error::EncryptionReason
+impl core::cmp::PartialEq for udoc_core::error::EncryptionReason
+pub fn udoc_core::error::EncryptionReason::eq(&self, other: &udoc_core::error::EncryptionReason) -> bool
+impl core::fmt::Debug for udoc_core::error::EncryptionReason
+pub fn udoc_core::error::EncryptionReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::error::EncryptionReason
+pub fn udoc_core::error::EncryptionReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::error::EncryptionReason
+impl core::marker::Freeze for udoc_core::error::EncryptionReason
+impl core::marker::Send for udoc_core::error::EncryptionReason
+impl core::marker::Sync for udoc_core::error::EncryptionReason
+impl core::marker::Unpin for udoc_core::error::EncryptionReason
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::error::EncryptionReason
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::error::EncryptionReason
+pub struct udoc_core::error::EncryptionRequired
+pub udoc_core::error::EncryptionRequired::reason: udoc_core::error::EncryptionReason
+impl core::clone::Clone for udoc_core::error::EncryptionRequired
+pub fn udoc_core::error::EncryptionRequired::clone(&self) -> udoc_core::error::EncryptionRequired
+impl core::cmp::Eq for udoc_core::error::EncryptionRequired
+impl core::cmp::PartialEq for udoc_core::error::EncryptionRequired
+pub fn udoc_core::error::EncryptionRequired::eq(&self, other: &udoc_core::error::EncryptionRequired) -> bool
+impl core::error::Error for udoc_core::error::EncryptionRequired
+impl core::fmt::Debug for udoc_core::error::EncryptionRequired
+pub fn udoc_core::error::EncryptionRequired::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::error::EncryptionRequired
+pub fn udoc_core::error::EncryptionRequired::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::error::EncryptionRequired
+impl core::marker::Freeze for udoc_core::error::EncryptionRequired
+impl core::marker::Send for udoc_core::error::EncryptionRequired
+impl core::marker::Sync for udoc_core::error::EncryptionRequired
+impl core::marker::Unpin for udoc_core::error::EncryptionRequired
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::error::EncryptionRequired
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::error::EncryptionRequired
+pub struct udoc_core::error::Error
+impl udoc_core::error::Error
+pub fn udoc_core::error::Error::context_chain(&self) -> &[alloc::string::String]
+pub fn udoc_core::error::Error::encryption_info(&self) -> core::option::Option<&udoc_core::error::EncryptionRequired>
+pub fn udoc_core::error::Error::encryption_required(reason: udoc_core::error::EncryptionReason) -> Self
+pub fn udoc_core::error::Error::font_fallback_info(&self) -> core::option::Option<&udoc_core::error::FontFallbackRequired>
+pub fn udoc_core::error::Error::font_fallback_required(requested: impl core::convert::Into<alloc::string::String>, reason: udoc_core::text::FallbackReason) -> Self
+pub fn udoc_core::error::Error::is_encryption_error(&self) -> bool
+pub fn udoc_core::error::Error::message(&self) -> &str
+pub fn udoc_core::error::Error::new(message: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc_core::error::Error::resource_limit_exceeded(requested: u64, limit: u64, kind: &'static str) -> Self
+pub fn udoc_core::error::Error::resource_limit_info(&self) -> core::option::Option<&udoc_core::error::ResourceLimitExceeded>
+pub fn udoc_core::error::Error::with_context(self, ctx: impl core::convert::Into<alloc::string::String>) -> Self
+pub fn udoc_core::error::Error::with_source(message: impl core::convert::Into<alloc::string::String>, source: impl core::error::Error + core::marker::Send + core::marker::Sync + 'static) -> Self
+impl core::convert::From<&str> for udoc_core::error::Error
+pub fn udoc_core::error::Error::from(s: &str) -> Self
+impl core::convert::From<alloc::string::String> for udoc_core::error::Error
+pub fn udoc_core::error::Error::from(s: alloc::string::String) -> Self
+impl core::convert::From<std::io::error::Error> for udoc_core::error::Error
+pub fn udoc_core::error::Error::from(e: std::io::error::Error) -> Self
+impl core::error::Error for udoc_core::error::Error
+pub fn udoc_core::error::Error::source(&self) -> core::option::Option<&(dyn core::error::Error + 'static)>
+impl core::fmt::Debug for udoc_core::error::Error
+pub fn udoc_core::error::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::error::Error
+pub fn udoc_core::error::Error::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::error::Error
+impl core::marker::Send for udoc_core::error::Error
+impl core::marker::Sync for udoc_core::error::Error
+impl core::marker::Unpin for udoc_core::error::Error
+impl !core::panic::unwind_safe::RefUnwindSafe for udoc_core::error::Error
+impl !core::panic::unwind_safe::UnwindSafe for udoc_core::error::Error
+pub struct udoc_core::error::FontFallbackRequired
+pub udoc_core::error::FontFallbackRequired::reason: udoc_core::text::FallbackReason
+pub udoc_core::error::FontFallbackRequired::requested: alloc::string::String
+impl core::clone::Clone for udoc_core::error::FontFallbackRequired
+pub fn udoc_core::error::FontFallbackRequired::clone(&self) -> udoc_core::error::FontFallbackRequired
+impl core::cmp::Eq for udoc_core::error::FontFallbackRequired
+impl core::cmp::PartialEq for udoc_core::error::FontFallbackRequired
+pub fn udoc_core::error::FontFallbackRequired::eq(&self, other: &udoc_core::error::FontFallbackRequired) -> bool
+impl core::error::Error for udoc_core::error::FontFallbackRequired
+impl core::fmt::Debug for udoc_core::error::FontFallbackRequired
+pub fn udoc_core::error::FontFallbackRequired::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::error::FontFallbackRequired
+pub fn udoc_core::error::FontFallbackRequired::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::error::FontFallbackRequired
+impl core::marker::Freeze for udoc_core::error::FontFallbackRequired
+impl core::marker::Send for udoc_core::error::FontFallbackRequired
+impl core::marker::Sync for udoc_core::error::FontFallbackRequired
+impl core::marker::Unpin for udoc_core::error::FontFallbackRequired
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::error::FontFallbackRequired
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::error::FontFallbackRequired
+pub struct udoc_core::error::ResourceLimitExceeded
+pub udoc_core::error::ResourceLimitExceeded::kind: &'static str
+pub udoc_core::error::ResourceLimitExceeded::limit: u64
+pub udoc_core::error::ResourceLimitExceeded::requested: u64
+impl core::clone::Clone for udoc_core::error::ResourceLimitExceeded
+pub fn udoc_core::error::ResourceLimitExceeded::clone(&self) -> udoc_core::error::ResourceLimitExceeded
+impl core::cmp::Eq for udoc_core::error::ResourceLimitExceeded
+impl core::cmp::PartialEq for udoc_core::error::ResourceLimitExceeded
+pub fn udoc_core::error::ResourceLimitExceeded::eq(&self, other: &udoc_core::error::ResourceLimitExceeded) -> bool
+impl core::error::Error for udoc_core::error::ResourceLimitExceeded
+impl core::fmt::Debug for udoc_core::error::ResourceLimitExceeded
+pub fn udoc_core::error::ResourceLimitExceeded::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::error::ResourceLimitExceeded
+pub fn udoc_core::error::ResourceLimitExceeded::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::error::ResourceLimitExceeded
+impl core::marker::Freeze for udoc_core::error::ResourceLimitExceeded
+impl core::marker::Send for udoc_core::error::ResourceLimitExceeded
+impl core::marker::Sync for udoc_core::error::ResourceLimitExceeded
+impl core::marker::Unpin for udoc_core::error::ResourceLimitExceeded
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::error::ResourceLimitExceeded
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::error::ResourceLimitExceeded
+pub trait udoc_core::error::ResultExt<T>
+pub fn udoc_core::error::ResultExt::context(self, msg: impl core::convert::Into<alloc::string::String>) -> udoc_core::error::Result<T>
+impl<T, E: core::convert::Into<udoc_core::error::Error>> udoc_core::error::ResultExt<T> for core::result::Result<T, E>
+pub fn core::result::Result<T, E>::context(self, msg: impl core::convert::Into<alloc::string::String>) -> udoc_core::error::Result<T>
+pub type udoc_core::error::Result<T> = core::result::Result<T, udoc_core::error::Error>
+pub mod udoc_core::geometry
+#[non_exhaustive] pub struct udoc_core::geometry::BoundingBox
+pub udoc_core::geometry::BoundingBox::x_max: f64
+pub udoc_core::geometry::BoundingBox::x_min: f64
+pub udoc_core::geometry::BoundingBox::y_max: f64
+pub udoc_core::geometry::BoundingBox::y_min: f64
+impl udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::area(&self) -> f64
+pub fn udoc_core::geometry::BoundingBox::contains_point(&self, x: f64, y: f64) -> bool
+pub fn udoc_core::geometry::BoundingBox::height(&self) -> f64
+pub fn udoc_core::geometry::BoundingBox::intersection_area(&self, other: &udoc_core::geometry::BoundingBox) -> f64
+pub fn udoc_core::geometry::BoundingBox::intersects(&self, other: &udoc_core::geometry::BoundingBox) -> bool
+pub fn udoc_core::geometry::BoundingBox::iou(&self, other: &udoc_core::geometry::BoundingBox) -> f64
+pub fn udoc_core::geometry::BoundingBox::merge(&self, other: &udoc_core::geometry::BoundingBox) -> udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::new(x_min: f64, y_min: f64, x_max: f64, y_max: f64) -> Self
+pub fn udoc_core::geometry::BoundingBox::width(&self) -> f64
+impl core::clone::Clone for udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::clone(&self) -> udoc_core::geometry::BoundingBox
+impl core::cmp::PartialEq for udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::eq(&self, other: &udoc_core::geometry::BoundingBox) -> bool
+impl core::fmt::Debug for udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::geometry::BoundingBox
+pub fn udoc_core::geometry::BoundingBox::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for udoc_core::geometry::BoundingBox
+impl core::marker::StructuralPartialEq for udoc_core::geometry::BoundingBox
+impl core::marker::Freeze for udoc_core::geometry::BoundingBox
+impl core::marker::Send for udoc_core::geometry::BoundingBox
+impl core::marker::Sync for udoc_core::geometry::BoundingBox
+impl core::marker::Unpin for udoc_core::geometry::BoundingBox
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::geometry::BoundingBox
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::geometry::BoundingBox
+pub mod udoc_core::image
+#[non_exhaustive] pub enum udoc_core::image::ImageFilter
+pub udoc_core::image::ImageFilter::Bmp
+pub udoc_core::image::ImageFilter::Ccitt
+pub udoc_core::image::ImageFilter::Emf
+pub udoc_core::image::ImageFilter::Gif
+pub udoc_core::image::ImageFilter::Jbig2
+pub udoc_core::image::ImageFilter::Jpeg
+pub udoc_core::image::ImageFilter::Jpeg2000
+pub udoc_core::image::ImageFilter::Png
+pub udoc_core::image::ImageFilter::Raw
+pub udoc_core::image::ImageFilter::Tiff
+pub udoc_core::image::ImageFilter::Wmf
+impl core::clone::Clone for udoc_core::image::ImageFilter
+pub fn udoc_core::image::ImageFilter::clone(&self) -> udoc_core::image::ImageFilter
+impl core::cmp::Eq for udoc_core::image::ImageFilter
+impl core::cmp::PartialEq for udoc_core::image::ImageFilter
+pub fn udoc_core::image::ImageFilter::eq(&self, other: &udoc_core::image::ImageFilter) -> bool
+impl core::fmt::Debug for udoc_core::image::ImageFilter
+pub fn udoc_core::image::ImageFilter::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for udoc_core::image::ImageFilter
+impl core::marker::StructuralPartialEq for udoc_core::image::ImageFilter
+impl core::marker::Freeze for udoc_core::image::ImageFilter
+impl core::marker::Send for udoc_core::image::ImageFilter
+impl core::marker::Sync for udoc_core::image::ImageFilter
+impl core::marker::Unpin for udoc_core::image::ImageFilter
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::image::ImageFilter
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::image::ImageFilter
+#[non_exhaustive] pub struct udoc_core::image::PageImage
+pub udoc_core::image::PageImage::bbox: core::option::Option<udoc_core::geometry::BoundingBox>
+pub udoc_core::image::PageImage::bits_per_component: u8
+pub udoc_core::image::PageImage::color_space: core::option::Option<alloc::string::String>
+pub udoc_core::image::PageImage::ctm: core::option::Option<[f64; 6]>
+pub udoc_core::image::PageImage::data: alloc::vec::Vec<u8>
+pub udoc_core::image::PageImage::filter: udoc_core::image::ImageFilter
+pub udoc_core::image::PageImage::height: u32
+pub udoc_core::image::PageImage::is_mask: bool
+pub udoc_core::image::PageImage::mask_color: [u8; 3]
+pub udoc_core::image::PageImage::soft_mask: core::option::Option<alloc::vec::Vec<u8>>
+pub udoc_core::image::PageImage::soft_mask_height: u32
+pub udoc_core::image::PageImage::soft_mask_width: u32
+pub udoc_core::image::PageImage::width: u32
+pub udoc_core::image::PageImage::z_index: u32
+impl udoc_core::image::PageImage
+pub fn udoc_core::image::PageImage::from_data(data: alloc::vec::Vec<u8>, bbox: core::option::Option<udoc_core::geometry::BoundingBox>) -> Self
+pub fn udoc_core::image::PageImage::new(data: alloc::vec::Vec<u8>, filter: udoc_core::image::ImageFilter, width: u32, height: u32, bits_per_component: u8, bbox: core::option::Option<udoc_core::geometry::BoundingBox>) -> Self
+impl core::clone::Clone for udoc_core::image::PageImage
+pub fn udoc_core::image::PageImage::clone(&self) -> udoc_core::image::PageImage
+impl core::fmt::Debug for udoc_core::image::PageImage
+pub fn udoc_core::image::PageImage::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::image::PageImage
+impl core::marker::Send for udoc_core::image::PageImage
+impl core::marker::Sync for udoc_core::image::PageImage
+impl core::marker::Unpin for udoc_core::image::PageImage
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::image::PageImage
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::image::PageImage
+pub fn udoc_core::image::detect_image_filter(data: &[u8]) -> udoc_core::image::ImageFilter
+pub fn udoc_core::image::parse_image_dimensions(data: &[u8]) -> (u32, u32)
+pub mod udoc_core::limits
+#[non_exhaustive] pub struct udoc_core::limits::Limits
+pub udoc_core::limits::Limits::max_cells_per_row: usize
+pub udoc_core::limits::Limits::max_decompressed_size: u64
+pub udoc_core::limits::Limits::max_file_size: u64
+pub udoc_core::limits::Limits::max_images: usize
+pub udoc_core::limits::Limits::max_nesting_depth: usize
+pub udoc_core::limits::Limits::max_pages: usize
+pub udoc_core::limits::Limits::max_style_depth: usize
+pub udoc_core::limits::Limits::max_styles: usize
+pub udoc_core::limits::Limits::max_table_rows: usize
+pub udoc_core::limits::Limits::max_text_length: usize
+pub udoc_core::limits::Limits::max_warnings: core::option::Option<usize>
+pub udoc_core::limits::Limits::memory_budget: core::option::Option<usize>
+impl udoc_core::limits::Limits
+pub fn udoc_core::limits::Limits::builder() -> udoc_core::limits::LimitsBuilder
+pub fn udoc_core::limits::Limits::new() -> Self
+impl core::clone::Clone for udoc_core::limits::Limits
+pub fn udoc_core::limits::Limits::clone(&self) -> udoc_core::limits::Limits
+impl core::default::Default for udoc_core::limits::Limits
+pub fn udoc_core::limits::Limits::default() -> Self
+impl core::fmt::Debug for udoc_core::limits::Limits
+pub fn udoc_core::limits::Limits::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::limits::Limits
+impl core::marker::Send for udoc_core::limits::Limits
+impl core::marker::Sync for udoc_core::limits::Limits
+impl core::marker::Unpin for udoc_core::limits::Limits
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::limits::Limits
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::limits::Limits
+pub struct udoc_core::limits::LimitsBuilder(_)
+impl udoc_core::limits::LimitsBuilder
+pub fn udoc_core::limits::LimitsBuilder::build(self) -> udoc_core::limits::Limits
+pub fn udoc_core::limits::LimitsBuilder::max_cells_per_row(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_decompressed_size(self, size: u64) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_file_size(self, size: u64) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_images(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_nesting_depth(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_pages(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_style_depth(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_styles(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_table_rows(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_text_length(self, n: usize) -> Self
+pub fn udoc_core::limits::LimitsBuilder::max_warnings(self, n: core::option::Option<usize>) -> Self
+pub fn udoc_core::limits::LimitsBuilder::memory_budget(self, budget: core::option::Option<usize>) -> Self
+impl core::marker::Freeze for udoc_core::limits::LimitsBuilder
+impl core::marker::Send for udoc_core::limits::LimitsBuilder
+impl core::marker::Sync for udoc_core::limits::LimitsBuilder
+impl core::marker::Unpin for udoc_core::limits::LimitsBuilder
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::limits::LimitsBuilder
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::limits::LimitsBuilder
+pub const udoc_core::limits::DEFAULT_MAX_ALLOC_BYTES: u64
+pub const udoc_core::limits::DEFAULT_MAX_CELLS_PER_ROW: usize
+pub const udoc_core::limits::DEFAULT_MAX_DECOMPRESSED_SIZE: u64
+pub const udoc_core::limits::DEFAULT_MAX_FILE_SIZE: u64
+pub const udoc_core::limits::DEFAULT_MAX_IMAGES: usize
+pub const udoc_core::limits::DEFAULT_MAX_NESTING_DEPTH: usize
+pub const udoc_core::limits::DEFAULT_MAX_PAGES: usize
+pub const udoc_core::limits::DEFAULT_MAX_STYLES: usize
+pub const udoc_core::limits::DEFAULT_MAX_STYLE_DEPTH: usize
+pub const udoc_core::limits::DEFAULT_MAX_TABLE_ROWS: usize
+pub const udoc_core::limits::DEFAULT_MAX_TEXT_LENGTH: usize
+pub const udoc_core::limits::DEFAULT_MAX_WARNINGS: usize
+pub const fn udoc_core::limits::gb(n: u64) -> u64
+pub const fn udoc_core::limits::kb(n: u64) -> u64
+pub const fn udoc_core::limits::mb(n: u64) -> u64
+pub fn udoc_core::limits::parse_size(s: &str) -> core::result::Result<u64, alloc::string::String>
+pub fn udoc_core::limits::safe_alloc_size(requested: u64, limit: u64, kind: &'static str) -> udoc_core::error::Result<usize>
+pub mod udoc_core::table
+#[non_exhaustive] pub struct udoc_core::table::Table
+pub udoc_core::table::Table::bbox: core::option::Option<udoc_core::geometry::BoundingBox>
+pub udoc_core::table::Table::header_row_count: usize
+pub udoc_core::table::Table::may_continue_from_previous: bool
+pub udoc_core::table::Table::may_continue_to_next: bool
+pub udoc_core::table::Table::num_columns: usize
+pub udoc_core::table::Table::rows: alloc::vec::Vec<udoc_core::table::TableRow>
+impl udoc_core::table::Table
+pub fn udoc_core::table::Table::col_count(&self) -> usize
+pub fn udoc_core::table::Table::new(rows: alloc::vec::Vec<udoc_core::table::TableRow>, bbox: core::option::Option<udoc_core::geometry::BoundingBox>) -> Self
+pub fn udoc_core::table::Table::row_count(&self) -> usize
+pub fn udoc_core::table::Table::with_continuation(rows: alloc::vec::Vec<udoc_core::table::TableRow>, bbox: core::option::Option<udoc_core::geometry::BoundingBox>, may_continue_from_previous: bool, may_continue_to_next: bool) -> Self
+impl core::clone::Clone for udoc_core::table::Table
+pub fn udoc_core::table::Table::clone(&self) -> udoc_core::table::Table
+impl core::fmt::Debug for udoc_core::table::Table
+pub fn udoc_core::table::Table::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::table::Table
+pub fn udoc_core::table::Table::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::table::Table
+impl core::marker::Send for udoc_core::table::Table
+impl core::marker::Sync for udoc_core::table::Table
+impl core::marker::Unpin for udoc_core::table::Table
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::table::Table
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::table::Table
+#[non_exhaustive] pub struct udoc_core::table::TableCell
+pub udoc_core::table::TableCell::bbox: core::option::Option<udoc_core::geometry::BoundingBox>
+pub udoc_core::table::TableCell::col_span: usize
+pub udoc_core::table::TableCell::row_span: usize
+pub udoc_core::table::TableCell::text: alloc::string::String
+impl udoc_core::table::TableCell
+pub fn udoc_core::table::TableCell::new(text: alloc::string::String, bbox: core::option::Option<udoc_core::geometry::BoundingBox>) -> Self
+pub fn udoc_core::table::TableCell::with_spans(text: alloc::string::String, bbox: core::option::Option<udoc_core::geometry::BoundingBox>, col_span: usize, row_span: usize) -> Self
+impl core::clone::Clone for udoc_core::table::TableCell
+pub fn udoc_core::table::TableCell::clone(&self) -> udoc_core::table::TableCell
+impl core::fmt::Debug for udoc_core::table::TableCell
+pub fn udoc_core::table::TableCell::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::table::TableCell
+pub fn udoc_core::table::TableCell::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::table::TableCell
+impl core::marker::Send for udoc_core::table::TableCell
+impl core::marker::Sync for udoc_core::table::TableCell
+impl core::marker::Unpin for udoc_core::table::TableCell
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::table::TableCell
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::table::TableCell
+#[non_exhaustive] pub struct udoc_core::table::TableRow
+pub udoc_core::table::TableRow::cells: alloc::vec::Vec<udoc_core::table::TableCell>
+pub udoc_core::table::TableRow::is_header: bool
+impl udoc_core::table::TableRow
+pub fn udoc_core::table::TableRow::new(cells: alloc::vec::Vec<udoc_core::table::TableCell>) -> Self
+pub fn udoc_core::table::TableRow::with_header(cells: alloc::vec::Vec<udoc_core::table::TableCell>, is_header: bool) -> Self
+impl core::clone::Clone for udoc_core::table::TableRow
+pub fn udoc_core::table::TableRow::clone(&self) -> udoc_core::table::TableRow
+impl core::fmt::Debug for udoc_core::table::TableRow
+pub fn udoc_core::table::TableRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::fmt::Display for udoc_core::table::TableRow
+pub fn udoc_core::table::TableRow::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::table::TableRow
+impl core::marker::Send for udoc_core::table::TableRow
+impl core::marker::Sync for udoc_core::table::TableRow
+impl core::marker::Unpin for udoc_core::table::TableRow
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::table::TableRow
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::table::TableRow
+pub mod udoc_core::text
+#[non_exhaustive] pub enum udoc_core::text::FallbackReason
+pub udoc_core::text::FallbackReason::CidNoToUnicode
+pub udoc_core::text::FallbackReason::EmbeddedCorrupt(alloc::string::String)
+pub udoc_core::text::FallbackReason::NameRouted
+pub udoc_core::text::FallbackReason::NotEmbedded
+pub udoc_core::text::FallbackReason::UnicodeRangeRouted
+pub udoc_core::text::FallbackReason::Unknown
+impl udoc_core::text::FallbackReason
+pub fn udoc_core::text::FallbackReason::as_str(&self) -> &'static str
+impl core::clone::Clone for udoc_core::text::FallbackReason
+pub fn udoc_core::text::FallbackReason::clone(&self) -> udoc_core::text::FallbackReason
+impl core::cmp::Eq for udoc_core::text::FallbackReason
+impl core::cmp::PartialEq for udoc_core::text::FallbackReason
+pub fn udoc_core::text::FallbackReason::eq(&self, other: &udoc_core::text::FallbackReason) -> bool
+impl core::fmt::Debug for udoc_core::text::FallbackReason
+pub fn udoc_core::text::FallbackReason::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::text::FallbackReason
+impl core::marker::Freeze for udoc_core::text::FallbackReason
+impl core::marker::Send for udoc_core::text::FallbackReason
+impl core::marker::Sync for udoc_core::text::FallbackReason
+impl core::marker::Unpin for udoc_core::text::FallbackReason
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::text::FallbackReason
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::text::FallbackReason
+#[non_exhaustive] pub enum udoc_core::text::FontResolution
+pub udoc_core::text::FontResolution::Exact
+pub udoc_core::text::FontResolution::Substituted
+pub udoc_core::text::FontResolution::Substituted::reason: udoc_core::text::FallbackReason
+pub udoc_core::text::FontResolution::Substituted::requested: alloc::string::String
+pub udoc_core::text::FontResolution::Substituted::resolved: alloc::string::String
+pub udoc_core::text::FontResolution::SyntheticFallback
+pub udoc_core::text::FontResolution::SyntheticFallback::generic_family: alloc::string::String
+pub udoc_core::text::FontResolution::SyntheticFallback::reason: udoc_core::text::FallbackReason
+pub udoc_core::text::FontResolution::SyntheticFallback::requested: alloc::string::String
+impl udoc_core::text::FontResolution
+pub fn udoc_core::text::FontResolution::is_exact(&self) -> bool
+pub fn udoc_core::text::FontResolution::is_fallback(&self) -> bool
+impl core::clone::Clone for udoc_core::text::FontResolution
+pub fn udoc_core::text::FontResolution::clone(&self) -> udoc_core::text::FontResolution
+impl core::cmp::Eq for udoc_core::text::FontResolution
+impl core::cmp::PartialEq for udoc_core::text::FontResolution
+pub fn udoc_core::text::FontResolution::eq(&self, other: &udoc_core::text::FontResolution) -> bool
+impl core::default::Default for udoc_core::text::FontResolution
+pub fn udoc_core::text::FontResolution::default() -> udoc_core::text::FontResolution
+impl core::fmt::Debug for udoc_core::text::FontResolution
+pub fn udoc_core::text::FontResolution::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for udoc_core::text::FontResolution
+impl core::marker::Freeze for udoc_core::text::FontResolution
+impl core::marker::Send for udoc_core::text::FontResolution
+impl core::marker::Sync for udoc_core::text::FontResolution
+impl core::marker::Unpin for udoc_core::text::FontResolution
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::text::FontResolution
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::text::FontResolution
+#[non_exhaustive] pub struct udoc_core::text::TextLine
+pub udoc_core::text::TextLine::baseline: f64
+pub udoc_core::text::TextLine::is_vertical: bool
+pub udoc_core::text::TextLine::spans: alloc::vec::Vec<udoc_core::text::TextSpan>
+impl udoc_core::text::TextLine
+pub fn udoc_core::text::TextLine::new(spans: alloc::vec::Vec<udoc_core::text::TextSpan>, baseline: f64, is_vertical: bool) -> Self
+pub fn udoc_core::text::TextLine::text(&self) -> alloc::string::String
+impl core::clone::Clone for udoc_core::text::TextLine
+pub fn udoc_core::text::TextLine::clone(&self) -> udoc_core::text::TextLine
+impl core::fmt::Debug for udoc_core::text::TextLine
+pub fn udoc_core::text::TextLine::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::text::TextLine
+impl core::marker::Send for udoc_core::text::TextLine
+impl core::marker::Sync for udoc_core::text::TextLine
+impl core::marker::Unpin for udoc_core::text::TextLine
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::text::TextLine
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::text::TextLine
+#[non_exhaustive] pub struct udoc_core::text::TextSpan
+pub udoc_core::text::TextSpan::advance_scale: f64
+pub udoc_core::text::TextSpan::char_advances: core::option::Option<alloc::vec::Vec<f64>>
+pub udoc_core::text::TextSpan::char_codes: core::option::Option<alloc::vec::Vec<u8>>
+pub udoc_core::text::TextSpan::char_gids: core::option::Option<alloc::vec::Vec<u16>>
+pub udoc_core::text::TextSpan::color: core::option::Option<crate::document::presentation::Color>
+pub udoc_core::text::TextSpan::font_id: core::option::Option<alloc::string::String>
+pub udoc_core::text::TextSpan::font_name: core::option::Option<alloc::string::String>
+pub udoc_core::text::TextSpan::font_resolution: udoc_core::text::FontResolution
+pub udoc_core::text::TextSpan::font_size: f64
+pub udoc_core::text::TextSpan::glyph_bboxes: core::option::Option<alloc::vec::Vec<udoc_core::geometry::BoundingBox>>
+pub udoc_core::text::TextSpan::is_bold: bool
+pub udoc_core::text::TextSpan::is_invisible: bool
+pub udoc_core::text::TextSpan::is_italic: bool
+pub udoc_core::text::TextSpan::is_subscript: bool
+pub udoc_core::text::TextSpan::is_superscript: bool
+pub udoc_core::text::TextSpan::letter_spacing: core::option::Option<f64>
+pub udoc_core::text::TextSpan::rotation: f64
+pub udoc_core::text::TextSpan::text: alloc::string::String
+pub udoc_core::text::TextSpan::width: f64
+pub udoc_core::text::TextSpan::x: f64
+pub udoc_core::text::TextSpan::y: f64
+pub udoc_core::text::TextSpan::z_index: u32
+impl udoc_core::text::TextSpan
+pub fn udoc_core::text::TextSpan::glyph_bbox_for_char_index(&self, char_index: usize) -> core::option::Option<udoc_core::geometry::BoundingBox>
+pub fn udoc_core::text::TextSpan::new(text: alloc::string::String, x: f64, y: f64, width: f64, font_size: f64) -> Self
+pub fn udoc_core::text::TextSpan::with_style(text: alloc::string::String, x: f64, y: f64, width: f64, font_name: core::option::Option<alloc::string::String>, font_size: f64, is_bold: bool, is_italic: bool, is_invisible: bool, rotation: f64) -> Self
+impl core::clone::Clone for udoc_core::text::TextSpan
+pub fn udoc_core::text::TextSpan::clone(&self) -> udoc_core::text::TextSpan
+impl core::fmt::Debug for udoc_core::text::TextSpan
+pub fn udoc_core::text::TextSpan::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for udoc_core::text::TextSpan
+impl core::marker::Send for udoc_core::text::TextSpan
+impl core::marker::Sync for udoc_core::text::TextSpan
+impl core::marker::Unpin for udoc_core::text::TextSpan
+impl core::panic::unwind_safe::RefUnwindSafe for udoc_core::text::TextSpan
+impl core::panic::unwind_safe::UnwindSafe for udoc_core::text::TextSpan
+pub macro udoc_core::define_backend_constructors!
+pub const udoc_core::MAX_NESTING_DEPTH: usize
