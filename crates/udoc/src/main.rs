@@ -260,6 +260,24 @@ struct ExtractArgs {
     )]
     out: Option<OutputMode>,
 
+    /// Shortcut for `--out json`. Hidden in `--help` to keep the
+    /// canonical surface around `--out`; kept as a stable alias for
+    /// muscle-memory CLI users and pre-existing pipelines.
+    #[arg(short = 'j', long = "json", hide = true)]
+    json_shortcut: bool,
+
+    /// Shortcut for `--out jsonl`.
+    #[arg(short = 'J', long = "jsonl", hide = true)]
+    jsonl_shortcut: bool,
+
+    /// Shortcut for `--out tsv`. (Tables-only output.)
+    #[arg(short = 't', long = "tables", hide = true)]
+    tsv_shortcut: bool,
+
+    /// Shortcut for `--out markdown`.
+    #[arg(short = 'm', long = "markdown", hide = true)]
+    markdown_shortcut: bool,
+
     /// Chunk strategy when `--out chunks` (page|heading|section|size).
     #[arg(
         long = "chunk-by",
@@ -970,8 +988,23 @@ fn run(cli: &ExtractArgs) -> Result<(), Box<dyn std::error::Error>> {
         None => None,
     };
 
-    // Resolve --out (terminal-aware default: text on TTY, json on pipe).
-    let out_mode = resolve_out_mode(cli.out);
+    // Resolve --out, honoring the legacy short-flag aliases (-j -J -t -m).
+    // Usage errors here haven't been emitted by anyone upstream, and the
+    // bare-file dispatch in main() runs with already_emitted=true; print
+    // a friendly message to stderr before returning so the user sees it.
+    let out_mode = match resolve_out_mode(
+        cli.out,
+        cli.json_shortcut,
+        cli.jsonl_shortcut,
+        cli.tsv_shortcut,
+        cli.markdown_shortcut,
+    ) {
+        Ok(m) => m,
+        Err(e) => {
+            eprintln!("udoc: {e}");
+            return Err(e);
+        }
+    };
 
     // --chunk-by required when --out chunks
     if out_mode == OutputMode::Chunks && cli.chunk_by.is_none() {
@@ -1083,13 +1116,45 @@ fn run(cli: &ExtractArgs) -> Result<(), Box<dyn std::error::Error>> {
     run_sequential(cli, &config, &diagnostics, format, out_mode)
 }
 
-/// Resolve the effective output mode. When the user passes `--out`
-/// explicitly, honor it. Otherwise default to plain text — the
-/// friendly default for `udoc paper.pdf | grep ...`, `| less`,
-/// `| wc -w`, etc. Programmatic callers ask for `-O json` or
-/// `-j` / `-J` when they want structured output.
-fn resolve_out_mode(explicit: Option<OutputMode>) -> OutputMode {
-    explicit.unwrap_or(OutputMode::Text)
+/// Resolve the effective output mode. Precedence:
+///   1. An explicit `--out X` always wins.
+///   2. Otherwise, exactly one short-flag alias (`-j`, `-J`, `-t`,
+///      `-m`) selects the corresponding mode.
+///   3. Otherwise, default to plain text -- the friendly default for
+///      `udoc paper.pdf | grep ...`, `| less`, `| wc -w`, etc.
+///
+/// Combining `--out X` with a non-matching short flag, or combining
+/// two short flags, is a usage error.
+fn resolve_out_mode(
+    explicit: Option<OutputMode>,
+    json_shortcut: bool,
+    jsonl_shortcut: bool,
+    tsv_shortcut: bool,
+    markdown_shortcut: bool,
+) -> Result<OutputMode, Box<dyn std::error::Error>> {
+    let shortcuts: &[(bool, OutputMode, &str)] = &[
+        (json_shortcut, OutputMode::Json, "-j/--json"),
+        (jsonl_shortcut, OutputMode::Jsonl, "-J/--jsonl"),
+        (tsv_shortcut, OutputMode::Tsv, "-t/--tables"),
+        (markdown_shortcut, OutputMode::Markdown, "-m/--markdown"),
+    ];
+    let active: Vec<_> = shortcuts.iter().filter(|(b, _, _)| *b).collect();
+
+    match active.as_slice() {
+        // No shortcuts: just honor --out (or default).
+        [] => Ok(explicit.unwrap_or(OutputMode::Text)),
+        // One shortcut: error if --out disagrees, otherwise use it.
+        [(_, mode, name)] => match explicit {
+            Some(m) if m != *mode => Err(format!("{name} conflicts with --out {m:?}").into()),
+            _ => Ok(*mode),
+        },
+        // Two or more shortcuts: ambiguous.
+        [first, second, ..] => Err(format!(
+            "conflicting output shortcuts: {} and {} -- pick one",
+            first.2, second.2,
+        )
+        .into()),
+    }
 }
 
 /// Sequential file processing: the original batch loop.
@@ -1186,8 +1251,21 @@ fn run_subprocess(cli: &ExtractArgs, processes: usize) -> Result<(), Box<dyn std
 
         // Forward extraction-shaping flags. We deliberately do NOT
         // forward --jobs or --processes to avoid stacking nested
-        // parallelism inside each child.
-        if let Some(mode) = cli.out {
+        // parallelism inside each child. Short-flag aliases (-j -J
+        // -t -m) are normalised to --out so children get one
+        // canonical representation.
+        let effective_mode = cli.out.or(if cli.json_shortcut {
+            Some(OutputMode::Json)
+        } else if cli.jsonl_shortcut {
+            Some(OutputMode::Jsonl)
+        } else if cli.tsv_shortcut {
+            Some(OutputMode::Tsv)
+        } else if cli.markdown_shortcut {
+            Some(OutputMode::Markdown)
+        } else {
+            None
+        });
+        if let Some(mode) = effective_mode {
             let s = match mode {
                 OutputMode::Text => "text",
                 OutputMode::Json => "json",
@@ -1774,16 +1852,19 @@ mod cli_flags_tests {
 
     /// Old output booleans (`--json`, `--jsonl`, `--tables`, `--images`)
     /// must error.
+    /// `--images` is a subcommand now (`udoc images <file>`), not a
+    /// flag. Trying to use it as a flag must error -- otherwise users
+    /// who type `udoc --images foo.pdf` (the old shape) get silent
+    /// nonsense instead of a usage hint.
     #[test]
-    fn old_output_booleans_error() {
-        for old in ["--json", "--jsonl", "--tables", "--images"] {
-            let res = Cli::try_parse_from(["udoc", old, "file.pdf"]);
-            assert!(res.is_err(), "{old} must be rejected post-");
-        }
+    fn old_images_flag_is_rejected() {
+        let res = Cli::try_parse_from(["udoc", "--images", "file.pdf"]);
+        assert!(res.is_err(), "--images must be a subcommand, not a flag");
     }
 
-    /// `resolve_out_mode(None)` is non-Chunks when stdout is a TTY-or-not;
-    /// the explicit-Some path always wins regardless of TTY state.
+    /// An explicit `--out X` always wins over the default. Each
+    /// OutputMode variant round-trips through `resolve_out_mode`
+    /// when no shortcut flags are set.
     #[test]
     fn resolve_out_mode_explicit_wins() {
         for mode in [
@@ -1794,8 +1875,84 @@ mod cli_flags_tests {
             OutputMode::Markdown,
             OutputMode::Chunks,
         ] {
-            assert_eq!(resolve_out_mode(Some(mode)), mode);
+            assert_eq!(
+                resolve_out_mode(Some(mode), false, false, false, false).unwrap(),
+                mode,
+            );
         }
+    }
+
+    /// No `--out` and no shortcut: default to plain text.
+    #[test]
+    fn resolve_out_mode_defaults_to_text() {
+        assert_eq!(
+            resolve_out_mode(None, false, false, false, false).unwrap(),
+            OutputMode::Text,
+        );
+    }
+
+    /// Each legacy short flag selects the corresponding mode.
+    #[test]
+    fn resolve_out_mode_short_flags() {
+        assert_eq!(
+            resolve_out_mode(None, true, false, false, false).unwrap(),
+            OutputMode::Json,
+        );
+        assert_eq!(
+            resolve_out_mode(None, false, true, false, false).unwrap(),
+            OutputMode::Jsonl,
+        );
+        assert_eq!(
+            resolve_out_mode(None, false, false, true, false).unwrap(),
+            OutputMode::Tsv,
+        );
+        assert_eq!(
+            resolve_out_mode(None, false, false, false, true).unwrap(),
+            OutputMode::Markdown,
+        );
+    }
+
+    /// A shortcut combined with a matching `--out` is fine.
+    #[test]
+    fn resolve_out_mode_shortcut_with_matching_out_ok() {
+        assert_eq!(
+            resolve_out_mode(Some(OutputMode::Json), true, false, false, false).unwrap(),
+            OutputMode::Json,
+        );
+    }
+
+    /// A shortcut combined with a different `--out` errors.
+    #[test]
+    fn resolve_out_mode_shortcut_conflicts_with_out() {
+        assert!(
+            resolve_out_mode(Some(OutputMode::Tsv), true, false, false, false).is_err(),
+            "-j with --out tsv should conflict",
+        );
+    }
+
+    /// Two shortcut flags at once is ambiguous.
+    #[test]
+    fn resolve_out_mode_two_shortcuts_conflict() {
+        assert!(
+            resolve_out_mode(None, true, false, true, false).is_err(),
+            "-j and -t together should conflict",
+        );
+    }
+
+    /// `-j paper.pdf` parses cleanly through clap.
+    #[test]
+    fn cli_short_flag_j_parses() {
+        let cli = Cli::try_parse_from(["udoc", "-j", "paper.pdf"]).expect("-j parses");
+        assert!(cli.extract.json_shortcut);
+        assert!(!cli.extract.jsonl_shortcut);
+        assert!(cli.extract.out.is_none());
+    }
+
+    /// `--json paper.pdf` (long alias) parses cleanly through clap.
+    #[test]
+    fn cli_long_alias_json_parses() {
+        let cli = Cli::try_parse_from(["udoc", "--json", "paper.pdf"]).expect("--json parses");
+        assert!(cli.extract.json_shortcut);
     }
 }
 
