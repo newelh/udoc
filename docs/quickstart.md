@@ -101,7 +101,7 @@ strategies, failure modes, and when to attach a
 - [Hooks and LLM integration](hooks.md) — the JSONL hook protocol.
 - [Agent instructions](agents.md) — drop-in context block for assistants
   using udoc as a tool.
-- [Per-format guides](formats/) — quirks and escape hatches for each
+- [Per-format guides](formats/index.md) — quirks and escape hatches for each
   supported format.
 - [Architecture](architecture.md) — design tenets, the document model,
   performance.
