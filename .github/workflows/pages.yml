@@ -1,0 +1,131 @@
+# Publishes the docs site at https://newelh.github.io/udoc/, including
+# a PEP 503 simple index at /simple/ that lists every wheel built for
+# the latest commit. Lets pre-PyPI testers do:
+#
+#   uv pip install udoc --index-url https://newelh.github.io/udoc/simple/
+#
+# Wheels live under /wheels/ on the same site; the simple index links
+# to them by relative path.
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-wheels:
+    name: Build wheels (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest          # linux x86_64 + aarch64 (QEMU)
+            cibw_archs: "x86_64 aarch64"
+          - os: macos-13               # native Intel
+            cibw_archs: "x86_64"
+          - os: macos-14               # native Apple Silicon
+            cibw_archs: "arm64"
+          - os: windows-latest         # native AMD64
+            cibw_archs: "AMD64"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU (for linux aarch64)
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build wheels with cibuildwheel
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          # Override the per-OS archs declared in pyproject.toml so each
+          # runner only builds its native arch. Cross-compiling between
+          # macOS x86_64 / arm64 needs both rustup targets installed and
+          # is slower; native-only avoids the cross issue entirely.
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+          retention-days: 14
+
+  deploy:
+    name: Compose and deploy site
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: wheel-artifacts
+          pattern: wheels-*
+          merge-multiple: true
+
+      - name: Compose site (docs + wheels + simple index)
+        run: |
+          mkdir -p _site/wheels _site/simple/udoc
+          # Markdown docs -- Jekyll renders them by default.
+          cp -r docs/. _site/
+          # Wheels at /wheels/<filename>.
+          cp wheel-artifacts/*.whl _site/wheels/ 2>/dev/null || true
+          # PEP 503 simple index. The href path is relative to
+          # /simple/udoc/, so we go up two levels and back into wheels/.
+          python3 - <<'PY'
+          import html, pathlib
+          wheels_dir = pathlib.Path('_site/wheels')
+          wheels = sorted(p.name for p in wheels_dir.iterdir() if p.suffix == '.whl')
+          udoc_idx = pathlib.Path('_site/simple/udoc/index.html')
+          udoc_idx.parent.mkdir(parents=True, exist_ok=True)
+          lines = [
+              '<!DOCTYPE html>',
+              '<html><head>',
+              '  <meta name="pypi:repository-version" content="1.0">',
+              '  <title>udoc</title>',
+              '</head><body>',
+              '  <h1>udoc</h1>',
+          ]
+          for w in wheels:
+              esc = html.escape(w)
+              lines.append(f'  <a href="../../wheels/{esc}">{esc}</a><br>')
+          lines.append('</body></html>')
+          udoc_idx.write_text('\n'.join(lines) + '\n')
+          # Top-level simple/index.html lists projects.
+          top = pathlib.Path('_site/simple/index.html')
+          top.write_text(
+              '<!DOCTYPE html>\n<html><body>\n'
+              '  <a href="udoc/">udoc</a>\n'
+              '</body></html>\n'
+          )
+          print(f'Indexed {len(wheels)} wheels:')
+          for w in wheels:
+              print(f'  {w}')
+          PY
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

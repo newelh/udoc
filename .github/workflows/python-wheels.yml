@@ -1,20 +1,11 @@
-# Builds the full PyPI wheel matrix on every push and PR -- same matrix
-# as `release.yml` but without the publish step. Acts as a canary so the
-# release-day tag push doesn't surface platform-specific build issues for
-# the first time.
+# Validates the full PyPI wheel matrix on every PR. The main-branch
+# push path is owned by `pages.yml`, which builds the same matrix and
+# also publishes wheels to the docs site as a PEP 503 simple index. On
+# tag push `release.yml` runs the matrix and publishes to PyPI.
 
 name: Python wheels
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "crates/**"
-      - "python/**"
-      - "pyproject.toml"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - ".github/workflows/python-wheels.yml"
   pull_request:
     paths:
       - "crates/**"
@@ -32,11 +23,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest          # linux x86_64 + aarch64
-          - macos-13               # macOS x86_64
-          - macos-14               # macOS arm64
-          - windows-latest         # windows x86_64
+        include:
+          - os: ubuntu-latest
+            cibw_archs: "x86_64 aarch64"
+          - os: macos-13
+            cibw_archs: "x86_64"
+          - os: macos-14
+            cibw_archs: "arm64"
+          - os: windows-latest
+            cibw_archs: "AMD64"
     steps:
       - uses: actions/checkout@v4
 
@@ -48,9 +43,12 @@ jobs:
 
       - name: Build wheels with cibuildwheel
         uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs }}
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
