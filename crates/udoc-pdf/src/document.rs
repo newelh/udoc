@@ -2232,6 +2232,25 @@ impl<'a> Page<'a> {
         Ok(join_text_lines(&lines))
     }
 
+    /// Render the page's text spans onto a monospace grid using their
+    /// PDF coordinates, returning one line per row.
+    ///
+    /// This is the position-faithful counterpart to [`Page::text`].
+    /// Reading-order extraction infers logical flow and returns prose;
+    /// layout-mode rendering preserves visual columns and tabular
+    /// alignment by projecting each glyph onto a terminal grid sized to
+    /// `opts.columns` cells wide. Equivalent to poppler's
+    /// `pdftotext -layout`.
+    ///
+    /// Glyph bboxes are used for placement when populated by the
+    /// content interpreter; otherwise chars are distributed evenly
+    /// across the span's advance width. Invisible spans and (by
+    /// default) rotated spans are skipped.
+    pub fn text_layout(&mut self, opts: &crate::text::LayoutOptions) -> Result<String> {
+        let spans = self.raw_spans()?;
+        Ok(crate::text::render_layout(&spans, opts))
+    }
+
     /// Extract hyperlinks from /Link annotations on this page.
     ///
     /// Walks the /Annots array, filters for /Subtype /Link, and extracts

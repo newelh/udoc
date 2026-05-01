@@ -12,10 +12,12 @@ pub mod coherence;
 pub(crate) mod coherence;
 
 pub mod cluster;
+pub mod layout;
 pub(crate) mod order;
 pub mod types;
 mod xy_cut;
 
+pub use layout::{render_layout, LayoutOptions};
 pub use types::{TextLine, TextSpan};
 
 // Used by fuzz_reading_order

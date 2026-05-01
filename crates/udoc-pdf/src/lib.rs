@@ -102,6 +102,11 @@ pub(crate) mod text;
 /// (default build).
 pub use text::cluster;
 
+/// Position-faithful layout-mode text rendering. See [`text::layout`].
+/// Re-exported at the crate root so callers can use the renderer
+/// without enabling the `test-internals` feature.
+pub use text::layout;
+
 /// Content stream interpreter. Internal module, exposed for integration testing.
 // Used by fuzz_content
 #[cfg(any(test, feature = "test-internals"))]
