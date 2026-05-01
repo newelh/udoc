@@ -1,0 +1,92 @@
+site_name: udoc
+site_description: A unified document extraction toolkit -- text, tables, and rendered pages from PDF, DOCX, XLSX, PPTX, ODF, RTF, and Markdown.
+site_url: https://newelh.github.io/udoc/
+repo_url: https://github.com/newelh/udoc
+repo_name: newelh/udoc
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+
+theme:
+  name: material
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Architecture: architecture.md
+  - Library API: library.md
+  - CLI:
+      - Reference: cli.md
+      - Agents: agents.md
+  - Hooks: hooks.md
+  - Render: render.md
+  - Formats:
+      - Overview: formats/index.md
+      - PDF: formats/pdf.md
+      - DOCX: formats/docx.md
+      - XLSX: formats/xlsx.md
+      - PPTX: formats/pptx.md
+      - DOC (legacy): formats/doc.md
+      - XLS (legacy): formats/xls.md
+      - PPT (legacy): formats/ppt.md
+      - ODF (ODT/ODS/ODP): formats/odf.md
+      - RTF: formats/rtf.md
+      - Markdown: formats/markdown.md
+  - Internals:
+      - Fonts: fonts.md
+      - Images: images.md
+      - Unsafe code: unsafe.md
+  - Compiling from source: compiling.md
+  - Security: security.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/newelh/udoc
