@@ -97,9 +97,7 @@ pub mod text;
 pub(crate) mod text;
 
 /// Spatial clustering, gap detection, and bbox filter helpers for PDF
-/// text. Promoted from `examples/investigate_*.rs` per
-/// /  A.6. See
-/// [`text::cluster`](text::cluster) for the underlying module; this
+/// text. See [`text::cluster`] for the underlying module; this
 /// re-export keeps the helpers reachable when `text` is `pub(crate)`
 /// (default build).
 pub use text::cluster;
