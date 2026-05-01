@@ -13,7 +13,9 @@ Read the abstract of "Attention Is All You Need" straight from
 arxiv using [uv](https://docs.astral.sh/uv/), no install required:
 
 ```bash
-curl -sL https://arxiv.org/pdf/1706.03762 | uvx udoc - | grep -A 18 '^Abstract'
+curl -sL https://arxiv.org/pdf/1706.03762 \
+  | uvx --index-url https://newelh.github.io/udoc/simple/ udoc - \
+  | grep -A 18 '^Abstract'
 ```
 
 [`uvx`](https://docs.astral.sh/uv/) runs udoc in an ephemeral
@@ -24,15 +26,19 @@ ODF, RTF, or Markdown file you have at hand.
 
 ## Install
 
-For a permanent install:
+While the `udoc` name on PyPI is being secured, wheels are served
+from a [PEP 503](https://peps.python.org/pep-0503/) simple index
+hosted on this repo's GitHub Pages. Once `udoc` is on PyPI the
+`--index-url` flag goes away.
 
 ```bash
-pip install udoc
+uv pip install udoc --index-url https://newelh.github.io/udoc/simple/
 ```
 
-`pip install udoc` lays down both the `udoc` command-line tool and the
-`udoc` Python module. They share one engine; the Python module is a
-thin PyO3 wrapper over the same binary.
+That lays down both the `udoc` command-line tool and the `udoc`
+Python module. They share one engine; the Python module is a thin
+PyO3 wrapper over the same binary. Plain `pip` works too if you set
+the same flag: `pip install udoc --index-url https://newelh.github.io/udoc/simple/`.
 
 ## Quick examples
 

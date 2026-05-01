@@ -5,8 +5,13 @@ Five minutes from install to first extraction. Python first.
 ## Install
 
 ```bash
-pip install udoc
+pip install udoc --index-url https://newelh.github.io/udoc/simple/
 ```
+
+The `--index-url` flag points at the PEP 503 simple index hosted on
+this repo's GitHub Pages while the `udoc` name on PyPI is being
+secured. Once `udoc` is on PyPI the flag drops and `pip install udoc`
+will Just Work. `uv pip install` accepts the same flag.
 
 This puts both the `udoc` command-line tool and the `udoc` Python module
 on your system. They share one binary; the Python module is a thin

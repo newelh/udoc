@@ -1,14 +1,21 @@
 # Compiling from source
 
-`pip install udoc` is the supported install path: it lays down a
-pre-built wheel containing both the CLI binary and the Python module,
-no toolchain required. This page is for the cases where you want to
-build the wheel yourself.
+A pre-built wheel is the supported install path: it lays down both the
+CLI binary and the Python module, no toolchain required. While the
+`udoc` name on PyPI is being secured, install via the project's PEP
+503 index:
+
+```bash
+pip install udoc --index-url https://newelh.github.io/udoc/simple/
+```
+
+This page is for the cases where you want to build the wheel
+yourself.
 
 ## Prerequisites
 
 - **Rust** — stable toolchain. udoc tracks the latest stable; the
-  workspace MSRV is `1.87`. Install via [rustup](https://rustup.rs/).
+  workspace MSRV is `1.88`. Install via [rustup](https://rustup.rs/).
 - **Python** — 3.10 or newer. The Python wheel uses the abi3-py310
   stable ABI, so one wheel covers 3.10 / 3.11 / 3.12 / 3.13.
 - **A C linker** — whatever `cc` or `clang` your platform expects.
@@ -157,10 +164,11 @@ cargo doc --workspace --no-deps --open
 ## crates.io
 
 udoc is not on crates.io for the alpha period. Distribution is via
-PyPI only (`pip install udoc`). Per-crate publishing to crates.io —
-`udoc`, `udoc-core`, `udoc-pdf`, and the per-format backends as
-independent dependencies — lands at beta, once the public API has
-stabilised across at least one external integration.
+the PEP 503 index above; PyPI publishing follows once the project
+name is secured. Per-crate publishing to crates.io — `udoc`,
+`udoc-core`, `udoc-pdf`, and the per-format backends as independent
+dependencies — lands at beta, once the public API has stabilised
+across at least one external integration.
 
 If you need the Rust API in the meantime, depend on the workspace by
 git path:

@@ -50,14 +50,19 @@ Document.images        -- shared image store referenced by Block::Image
 If `udoc` is not installed in the current environment, run it via
 [`uv`](https://docs.astral.sh/uv/):
 
-  uvx udoc <file>
+  uvx --index-url https://newelh.github.io/udoc/simple/ udoc <file>
 
 `uvx` pulls a wheel into an ephemeral environment and runs udoc once.
 Same shape works in pipelines:
 
-  curl -sL https://example.com/doc.pdf | uvx udoc -
+  curl -sL https://example.com/doc.pdf \
+    | uvx --index-url https://newelh.github.io/udoc/simple/ udoc -
 
-Every CLI flag in this document works the same with or without `uvx`.
+The `--index-url` flag points at the PEP 503 index hosted on this
+repo's GitHub Pages while the `udoc` name on PyPI is being secured.
+Once udoc is on PyPI the flag drops and the commands shorten back to
+`uvx udoc <file>`. Every CLI flag in this document works the same
+with or without `uvx`.
 
 ## Common piping recipes (CLI)
 
