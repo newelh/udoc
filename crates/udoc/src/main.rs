@@ -1516,6 +1516,11 @@ fn process_one_file(
     out_mode: OutputMode,
     file_arg: &str,
 ) -> Result<FileOutput, Box<dyn std::error::Error + Send + Sync>> {
+    // Stdin bytes are kept in scope so the Layout dispatch (which
+    // re-opens the document via udoc-pdf) can reuse them instead of
+    // attempting to read stdin a second time after extract_bytes_with
+    // has consumed it.
+    let mut stdin_bytes: Option<Vec<u8>> = None;
     let (mut doc, format_name) = if file_arg == "-" {
         let mut data = Vec::new();
         io::stdin()
@@ -1526,6 +1531,7 @@ fn process_one_file(
         let name = udoc::detect::detect_format(&data)
             .map(|f| f.to_string())
             .unwrap_or_else(|| "unknown".to_string());
+        stdin_bytes = Some(data);
         (doc, name)
     } else {
         let path = std::path::Path::new(file_arg);
@@ -1633,7 +1639,7 @@ fn process_one_file(
             // directly. For non-PDF formats, fall back to plain text
             // (their native output is already layout-faithful).
             if format_name.eq_ignore_ascii_case("pdf") {
-                emit_layout_for_pdf_doc(file_arg, cli.columns, &mut buf)?;
+                emit_layout_for_pdf_doc(file_arg, stdin_bytes.as_deref(), cli.columns, &mut buf)?;
             } else {
                 output::text::write_text(&doc, &mut buf)?;
             }
@@ -1652,9 +1658,12 @@ fn process_one_file(
 ///
 /// Re-opens the file via `udoc_pdf::Document` because the layout
 /// renderer needs the raw, geometry-rich spans that the unified
-/// document model discards during conversion.
+/// document model discards during conversion. When `stdin_bytes` is
+/// `Some`, those bytes are reused (the upstream extract path already
+/// drained stdin); otherwise the file is opened from disk.
 fn emit_layout_for_pdf_doc(
     file_arg: &str,
+    stdin_bytes: Option<&[u8]>,
     columns: Option<usize>,
     out: &mut Vec<u8>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -1671,10 +1680,16 @@ fn emit_layout_for_pdf_doc(
         .max(1);
 
     let mut doc = if file_arg == "-" {
-        let mut data = Vec::new();
-        io::stdin()
-            .read_to_end(&mut data)
-            .map_err(|e| format!("reading stdin: {e}"))?;
+        let data = match stdin_bytes {
+            Some(b) => b.to_vec(),
+            None => {
+                let mut buf = Vec::new();
+                io::stdin()
+                    .read_to_end(&mut buf)
+                    .map_err(|e| format!("reading stdin: {e}"))?;
+                buf
+            }
+        };
         PdfDoc::from_bytes(data).map_err(|e| format!("parsing pdf from stdin: {e}"))?
     } else {
         let path = std::path::Path::new(file_arg);
