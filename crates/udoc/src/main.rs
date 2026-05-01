@@ -228,6 +228,10 @@ enum OutputMode {
     Markdown,
     /// Chunked NDJSON for ingest pipelines (requires `--chunk-by`).
     Chunks,
+    /// PDF text projected onto a monospace grid, preserving columns
+    /// and tabular alignment. Equivalent to `pdftotext -layout`.
+    /// PDF-only; other formats fall back to plain text.
+    Layout,
 }
 
 /// Chunk strategy for `--out chunks`.
@@ -251,7 +255,7 @@ struct ExtractArgs {
     /// Document path(s). Use - for stdin. Multiple files for batch extraction.
     files: Vec<String>,
 
-    /// Output mode (text|json|jsonl|tsv|markdown|chunks). Default `text`.
+    /// Output mode (text|json|jsonl|tsv|markdown|chunks|layout). Default `text`.
     #[arg(
         short = 'O',
         long = "out",
@@ -259,6 +263,14 @@ struct ExtractArgs {
         help_heading = "Output mode"
     )]
     out: Option<OutputMode>,
+
+    /// Shortcut for `--out layout`: render PDF text on a monospace grid.
+    #[arg(short = 'L', long = "layout", help_heading = "Output mode")]
+    layout: bool,
+
+    /// Target line width in columns for `--out layout` (default: 100).
+    #[arg(long = "columns", value_name = "N", help_heading = "Output formatting")]
+    columns: Option<usize>,
 
     /// Chunk strategy when `--out chunks` (page|heading|section|size).
     #[arg(
@@ -970,8 +982,9 @@ fn run(cli: &ExtractArgs) -> Result<(), Box<dyn std::error::Error>> {
         None => None,
     };
 
-    // Resolve --out (terminal-aware default: text on TTY, json on pipe).
-    let out_mode = resolve_out_mode(cli.out);
+    // Resolve --out. `-L` / `--layout` is a shortcut for `--out layout`
+    // and conflicts with an explicit `--out` of a different mode.
+    let out_mode = resolve_out_mode(cli.out, cli.layout)?;
 
     // --chunk-by required when --out chunks
     if out_mode == OutputMode::Chunks && cli.chunk_by.is_none() {
@@ -1088,8 +1101,21 @@ fn run(cli: &ExtractArgs) -> Result<(), Box<dyn std::error::Error>> {
 /// friendly default for `udoc paper.pdf | grep ...`, `| less`,
 /// `| wc -w`, etc. Programmatic callers ask for `-O json` or
 /// `-j` / `-J` when they want structured output.
-fn resolve_out_mode(explicit: Option<OutputMode>) -> OutputMode {
-    explicit.unwrap_or(OutputMode::Text)
+///
+/// `-L` / `--layout` is a shortcut for `--out layout`. Combining it
+/// with an explicit non-layout `--out` is a usage error.
+fn resolve_out_mode(
+    explicit: Option<OutputMode>,
+    layout_flag: bool,
+) -> Result<OutputMode, Box<dyn std::error::Error>> {
+    match (explicit, layout_flag) {
+        (Some(mode), true) if mode != OutputMode::Layout => {
+            Err(format!("--layout conflicts with --out {mode:?}").into())
+        }
+        (_, true) => Ok(OutputMode::Layout),
+        (Some(mode), false) => Ok(mode),
+        (None, false) => Ok(OutputMode::Text),
+    }
 }
 
 /// Sequential file processing: the original batch loop.
@@ -1195,6 +1221,7 @@ fn run_subprocess(cli: &ExtractArgs, processes: usize) -> Result<(), Box<dyn std
                 OutputMode::Tsv => "tsv",
                 OutputMode::Markdown => "markdown",
                 OutputMode::Chunks => "chunks",
+                OutputMode::Layout => "layout",
             };
             cmd.arg("--out").arg(s);
         }
@@ -1207,6 +1234,12 @@ fn run_subprocess(cli: &ExtractArgs, processes: usize) -> Result<(), Box<dyn std
             };
             cmd.arg("--chunk-by").arg(s);
             cmd.arg("--chunk-size").arg(cli.chunk_size.to_string());
+        }
+        if cli.layout {
+            cmd.arg("--layout");
+        }
+        if let Some(n) = cli.columns {
+            cmd.arg("--columns").arg(n.to_string());
         }
         if let Some(ref pages) = cli.pages {
             cmd.arg("--pages").arg(pages);
@@ -1483,6 +1516,11 @@ fn process_one_file(
     out_mode: OutputMode,
     file_arg: &str,
 ) -> Result<FileOutput, Box<dyn std::error::Error + Send + Sync>> {
+    // Stdin bytes are kept in scope so the Layout dispatch (which
+    // re-opens the document via udoc-pdf) can reuse them instead of
+    // attempting to read stdin a second time after extract_bytes_with
+    // has consumed it.
+    let mut stdin_bytes: Option<Vec<u8>> = None;
     let (mut doc, format_name) = if file_arg == "-" {
         let mut data = Vec::new();
         io::stdin()
@@ -1493,6 +1531,7 @@ fn process_one_file(
         let name = udoc::detect::detect_format(&data)
             .map(|f| f.to_string())
             .unwrap_or_else(|| "unknown".to_string());
+        stdin_bytes = Some(data);
         (doc, name)
     } else {
         let path = std::path::Path::new(file_arg);
@@ -1595,12 +1634,90 @@ fn process_one_file(
                 &mut buf,
             )?;
         }
+        OutputMode::Layout => {
+            // PDF-only path: use udoc-pdf's geometry-aware renderer
+            // directly. For non-PDF formats, fall back to plain text
+            // (their native output is already layout-faithful).
+            if format_name.eq_ignore_ascii_case("pdf") {
+                emit_layout_for_pdf_doc(file_arg, stdin_bytes.as_deref(), cli.columns, &mut buf)?;
+            } else {
+                output::text::write_text(&doc, &mut buf)?;
+            }
+        }
     }
 
     Ok(FileOutput {
         data: buf,
         warnings: Vec::new(),
     })
+}
+
+/// Render every page of a PDF onto a monospace grid (poppler-style
+/// `pdftotext -layout`) and write to `out`. Pages are separated by
+/// form-feed (`\f`, 0x0C) for compatibility with poppler tooling.
+///
+/// Re-opens the file via `udoc_pdf::Document` because the layout
+/// renderer needs the raw, geometry-rich spans that the unified
+/// document model discards during conversion. When `stdin_bytes` is
+/// `Some`, those bytes are reused (the upstream extract path already
+/// drained stdin); otherwise the file is opened from disk.
+fn emit_layout_for_pdf_doc(
+    file_arg: &str,
+    stdin_bytes: Option<&[u8]>,
+    columns: Option<usize>,
+    out: &mut Vec<u8>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    use udoc_pdf::layout::LayoutOptions;
+    use udoc_pdf::Document as PdfDoc;
+
+    let target_cols = columns
+        .or_else(|| {
+            std::env::var("COLUMNS")
+                .ok()
+                .and_then(|s| s.parse::<usize>().ok())
+        })
+        .unwrap_or(100)
+        .max(1);
+
+    let mut doc = if file_arg == "-" {
+        let data = match stdin_bytes {
+            Some(b) => b.to_vec(),
+            None => {
+                let mut buf = Vec::new();
+                io::stdin()
+                    .read_to_end(&mut buf)
+                    .map_err(|e| format!("reading stdin: {e}"))?;
+                buf
+            }
+        };
+        PdfDoc::from_bytes(data).map_err(|e| format!("parsing pdf from stdin: {e}"))?
+    } else {
+        let path = std::path::Path::new(file_arg);
+        PdfDoc::open(path).map_err(|e| format!("opening pdf {}: {e}", path.display()))?
+    };
+
+    for i in 0..doc.page_count() {
+        let mut page = doc.page(i).map_err(|e| format!("page {i}: {e}"))?;
+        // page.page_bbox() returns udoc-pdf's local BoundingBox; the
+        // renderer wants the udoc-core flavor (same fields).
+        let pb = page.page_bbox();
+        let bbox = udoc_core::geometry::BoundingBox::new(pb.x_min, pb.y_min, pb.x_max, pb.y_max);
+        let opts = LayoutOptions {
+            page_bbox: bbox,
+            columns: target_cols,
+            ..LayoutOptions::default()
+        };
+        let rendered = page
+            .text_layout(&opts)
+            .map_err(|e| format!("rendering page {i}: {e}"))?;
+        out.extend_from_slice(rendered.as_bytes());
+        if i + 1 < doc.page_count() {
+            out.push(b'\x0c'); // form feed between pages
+        } else {
+            out.push(b'\n');
+        }
+    }
+    Ok(())
 }
 
 /// Write one file's formatted output to the appropriate destination.
@@ -1742,6 +1859,7 @@ mod cli_flags_tests {
             ("tsv", OutputMode::Tsv),
             ("markdown", OutputMode::Markdown),
             ("chunks", OutputMode::Chunks),
+            ("layout", OutputMode::Layout),
         ] {
             let cli = Cli::try_parse_from(["udoc", "--out", s, "file.pdf"])
                 .unwrap_or_else(|e| panic!("--out {s} should parse: {e}"));
@@ -1782,8 +1900,8 @@ mod cli_flags_tests {
         }
     }
 
-    /// `resolve_out_mode(None)` is non-Chunks when stdout is a TTY-or-not;
-    /// the explicit-Some path always wins regardless of TTY state.
+    /// The explicit `--out` value always wins. With no `--layout`
+    /// shortcut, `--out X` resolves to X for every variant.
     #[test]
     fn resolve_out_mode_explicit_wins() {
         for mode in [
@@ -1793,9 +1911,32 @@ mod cli_flags_tests {
             OutputMode::Tsv,
             OutputMode::Markdown,
             OutputMode::Chunks,
+            OutputMode::Layout,
         ] {
-            assert_eq!(resolve_out_mode(Some(mode)), mode);
+            assert_eq!(resolve_out_mode(Some(mode), false).unwrap(), mode);
         }
+    }
+
+    /// Bare `-L` resolves to Layout, even with no `--out` flag at all.
+    #[test]
+    fn resolve_out_mode_layout_shortcut() {
+        assert_eq!(resolve_out_mode(None, true).unwrap(), OutputMode::Layout);
+    }
+
+    /// `-L` plus `--out layout` is fine (redundant but consistent).
+    #[test]
+    fn resolve_out_mode_layout_shortcut_with_explicit_layout_ok() {
+        assert_eq!(
+            resolve_out_mode(Some(OutputMode::Layout), true).unwrap(),
+            OutputMode::Layout
+        );
+    }
+
+    /// `-L` plus a non-Layout `--out` is a usage error.
+    #[test]
+    fn resolve_out_mode_layout_shortcut_conflicts_with_other_modes() {
+        assert!(resolve_out_mode(Some(OutputMode::Json), true).is_err());
+        assert!(resolve_out_mode(Some(OutputMode::Markdown), true).is_err());
     }
 }
 
