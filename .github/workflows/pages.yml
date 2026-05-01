@@ -30,11 +30,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Each entry uses a runner whose hardware matches the wheel arch
+        # so cibuildwheel never cross-compiles or emulates. macos-13
+        # (Intel) is intentionally excluded -- its runner queue at GH is
+        # frequently 1h+, and Apple has deprecated the architecture.
+        # release.yml still builds it on tag push, where the wait is
+        # acceptable.
         include:
-          - os: ubuntu-latest          # linux x86_64 + aarch64 (QEMU)
-            cibw_archs: "x86_64 aarch64"
-          - os: macos-13               # native Intel
+          - os: ubuntu-latest          # native linux x86_64
             cibw_archs: "x86_64"
+          - os: ubuntu-24.04-arm       # native linux aarch64 (no QEMU)
+            cibw_archs: "aarch64"
           - os: macos-14               # native Apple Silicon
             cibw_archs: "arm64"
           - os: windows-latest         # native AMD64
@@ -42,19 +48,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU (for linux aarch64)
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
-
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Build wheels with cibuildwheel
         uses: pypa/cibuildwheel@v2.21.3
         env:
-          # Override the per-OS archs declared in pyproject.toml so each
-          # runner only builds its native arch. Cross-compiling between
-          # macOS x86_64 / arm64 needs both rustup targets installed and
-          # is slower; native-only avoids the cross issue entirely.
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
           CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs }}

@@ -23,21 +23,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # macos-13 deliberately excluded; release.yml still covers it on
+        # tag push. See pages.yml for the reasoning.
         include:
-          - os: ubuntu-latest
-            cibw_archs: "x86_64 aarch64"
-          - os: macos-13
+          - os: ubuntu-latest          # native linux x86_64
             cibw_archs: "x86_64"
-          - os: macos-14
+          - os: ubuntu-24.04-arm       # native linux aarch64
+            cibw_archs: "aarch64"
+          - os: macos-14               # native Apple Silicon
             cibw_archs: "arm64"
-          - os: windows-latest
+          - os: windows-latest         # native AMD64
             cibw_archs: "AMD64"
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up QEMU (for linux aarch64)
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
 
       - uses: dtolnay/rust-toolchain@stable
 

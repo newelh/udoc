@@ -21,9 +21,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Full matrix on tag push, including macOS Intel for one last
+        # cycle of compatibility. Each entry runs on hardware that
+        # matches the wheel arch -- no QEMU, no cross-compile.
         include:
-          - os: ubuntu-latest          # linux x86_64 + aarch64
-            cibw_archs: "x86_64 aarch64"
+          - os: ubuntu-latest          # native linux x86_64
+            cibw_archs: "x86_64"
+          - os: ubuntu-24.04-arm       # native linux aarch64
+            cibw_archs: "aarch64"
           - os: macos-13               # native Intel
             cibw_archs: "x86_64"
           - os: macos-14               # native Apple Silicon
@@ -32,10 +37,6 @@ jobs:
             cibw_archs: "AMD64"
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up QEMU (for linux aarch64)
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
 
       - uses: dtolnay/rust-toolchain@stable
 
