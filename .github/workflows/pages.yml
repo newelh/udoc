@@ -79,20 +79,83 @@ jobs:
           pattern: wheels-*
           merge-multiple: true
 
+      - name: Install markdown renderer
+        run: python3 -m pip install --upgrade markdown pymdown-extensions pygments
+
       - name: Compose site (docs + wheels + simple index)
         run: |
           mkdir -p _site/wheels _site/simple/udoc
-          # Markdown docs -- Jekyll renders them by default.
-          cp -r docs/. _site/
           # Wheels at /wheels/<filename>.
           cp wheel-artifacts/*.whl _site/wheels/ 2>/dev/null || true
-          # PEP 503 simple index. The href path is relative to
-          # /simple/udoc/, so we go up two levels and back into wheels/.
+          # Disable Jekyll processing (we ship pre-rendered HTML).
+          touch _site/.nojekyll
           python3 - <<'PY'
-          import html, pathlib
-          wheels_dir = pathlib.Path('_site/wheels')
-          wheels = sorted(p.name for p in wheels_dir.iterdir() if p.suffix == '.whl')
-          udoc_idx = pathlib.Path('_site/simple/udoc/index.html')
+          import html, pathlib, re
+          import markdown
+
+          REPO_ROOT = pathlib.Path('.')
+          SITE = pathlib.Path('_site')
+
+          CSS = '''
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                 max-width: 760px; margin: 2.5rem auto; padding: 0 1.5rem;
+                 line-height: 1.55; color: #1a1a1a; }
+          h1, h2, h3 { line-height: 1.25; }
+          h1 { border-bottom: 1px solid #ddd; padding-bottom: .3rem; }
+          a { color: #0a58ca; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          pre { background: #101010; color: #e8e8e8; padding: 1rem; border-radius: 6px;
+                overflow-x: auto; font-size: .9rem; }
+          code { background: #f0f0f0; padding: .1rem .3rem; border-radius: 3px;
+                 font-size: .9em; }
+          pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+          table { border-collapse: collapse; }
+          th, td { padding: .4rem .8rem; border-bottom: 1px solid #ddd; text-align: left; }
+          .nav { color: #666; font-size: .9rem; margin-bottom: 2rem; }
+          '''.strip()
+
+          PAGE_TPL = '''<!DOCTYPE html>
+          <html lang="en"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>{title} -- udoc</title>
+          <style>{css}</style>
+          </head><body>
+          <div class="nav"><a href="/udoc/">&larr; udoc home</a></div>
+          {body}
+          </body></html>
+          '''
+
+          def render(md_text, title):
+              md = markdown.Markdown(extensions=[
+                  'fenced_code', 'tables', 'toc',
+                  'pymdownx.superfences', 'pymdownx.highlight',
+              ])
+              body = md.convert(md_text)
+              # Rewrite *.md links to *.html so pages link to each other on the site.
+              body = re.sub(r'href="([^"]+?)\.md(#[^"]*)?"',
+                            lambda m: f'href="{m.group(1)}.html{m.group(2) or ""}"',
+                            body)
+              return PAGE_TPL.format(title=html.escape(title), css=CSS, body=body)
+
+          # Homepage: render README.md
+          readme_md = (REPO_ROOT / 'README.md').read_text()
+          (SITE / 'index.html').write_text(render(readme_md, 'udoc'))
+          print('Rendered: index.html (from README.md)')
+
+          # Each docs/*.md -> _site/<name>.html
+          for md_path in sorted((REPO_ROOT / 'docs').rglob('*.md')):
+              rel = md_path.relative_to(REPO_ROOT / 'docs')
+              out = SITE / rel.with_suffix('.html')
+              out.parent.mkdir(parents=True, exist_ok=True)
+              title = rel.stem.replace('-', ' ').replace('_', ' ').title()
+              out.write_text(render(md_path.read_text(), title))
+              print(f'Rendered: {out.relative_to(SITE)}')
+
+          # PEP 503 simple index. The href path is relative to /simple/udoc/.
+          wheels_dir = SITE / 'wheels'
+          wheels = sorted(p.name for p in wheels_dir.iterdir() if p.suffix == '.whl') \
+              if wheels_dir.exists() else []
+          udoc_idx = SITE / 'simple' / 'udoc' / 'index.html'
           udoc_idx.parent.mkdir(parents=True, exist_ok=True)
           lines = [
               '<!DOCTYPE html>',
@@ -107,8 +170,9 @@ jobs:
               lines.append(f'  <a href="../../wheels/{esc}">{esc}</a><br>')
           lines.append('</body></html>')
           udoc_idx.write_text('\n'.join(lines) + '\n')
+
           # Top-level simple/index.html lists projects.
-          top = pathlib.Path('_site/simple/index.html')
+          top = SITE / 'simple' / 'index.html'
           top.write_text(
               '<!DOCTYPE html>\n<html><body>\n'
               '  <a href="udoc/">udoc</a>\n'
