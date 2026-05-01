@@ -84,11 +84,15 @@ jobs:
 
       - name: Build docs site with mkdocs
         run: |
-          # mkdocs uses docs/index.md as the homepage. Use the project
-          # README so the homepage stays in sync with the repo landing
-          # page, then drop the duplicate after build (mkdocs has
-          # already consumed it).
-          cp README.md docs/index.md
+          # The README is the homepage. mkdocs reads docs/index.md;
+          # the README's repo-relative links (`docs/cli.md`,
+          # `SECURITY.md`, `LICENSE-APACHE`...) 404 on the rendered
+          # docs site, so the rewriter rebases them to docs-relative
+          # form before mkdocs sees them. Build is `--strict` so any
+          # surviving broken link fails CI loudly.
+          python3 scripts/render-readme-as-docs-index.py \
+            < README.md \
+            > docs/index.md
           mkdocs build --strict --site-dir _site/
           rm docs/index.md
 

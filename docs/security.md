@@ -1,13 +1,13 @@
 # Security
 
-This is the in-depth complement to [`SECURITY.md`](../SECURITY.md). The
+This is the in-depth complement to [`SECURITY.md`](https://github.com/newelh/udoc/blob/main/SECURITY.md). The
 short reporting policy and threat model live there; this page covers the
 unsafe-code audit, the fuzzing posture, and a few hardening details that
 do not fit on a one-page policy.
 
 ## Reporting
 
-See [`SECURITY.md`](../SECURITY.md). The short version: GitHub Security
+See [`SECURITY.md`](https://github.com/newelh/udoc/blob/main/SECURITY.md). The short version: GitHub Security
 Advisories are preferred, `me@newel.dev` is the email fallback.
 
 ## Unsafe code policy
