@@ -15,15 +15,15 @@ theme:
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: black
-      accent: indigo
+      primary: amber
+      accent: amber
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: indigo
+      primary: amber
+      accent: amber
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -33,6 +33,7 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - toc.integrate
     - toc.follow
     - search.suggest
     - search.highlight
@@ -58,18 +59,29 @@ markdown_extensions:
       alternate_style: true
 
 nav:
-  - Home: index.md
-  - Quickstart: quickstart.md
-  - Architecture: architecture.md
-  - Library API: library.md
-  - CLI:
-      - Reference: cli.md
-      - Agents: agents.md
-  - Hooks: hooks.md
-  - Render: render.md
+  - Overview: index.md
+  - Concepts:
+      - Documents are weird: doc-processing.md
+      - Document Model: reference/document-model.md
+      - Hooks: hooks.md
+  - Examples:
+      - examples/index.md
+      - Recipes: examples/recipes.md
+      - Pipelines: examples/pipelines.md
+      - Hook implementations: examples/hooks.md
+  - Reference:
+      - Guide: library.md
+      - CLI: cli.md
+      - Python Library: reference/python.md
+      - Rust Library: reference/rust.md
+      - Hook protocol: reference/hooks.md
+      - Compiling from source: compiling.md
+      - Agent Instructions: agents.md
   - Formats:
-      - Overview: formats/index.md
-      - PDF: formats/pdf.md
+      - formats/index.md
+      - PDF:
+          - Format guide: formats/pdf.md
+          - Rendering & OCR: render.md
       - DOCX: formats/docx.md
       - XLSX: formats/xlsx.md
       - PPTX: formats/pptx.md
@@ -79,12 +91,17 @@ nav:
       - ODF (ODT/ODS/ODP): formats/odf.md
       - RTF: formats/rtf.md
       - Markdown: formats/markdown.md
-  - Internals:
-      - Fonts: fonts.md
-      - Images: images.md
-      - Unsafe code: unsafe.md
-  - Compiling from source: compiling.md
-  - Security: security.md
+  - Architecture:
+      - architecture.md
+      - Benchmarks: benchmarks.md
+      - Security: security.md
+      - Internals:
+          - Fonts: fonts.md
+          - Images: images.md
+          - Unsafe code: unsafe.md
+
+extra_css:
+  - stylesheets/extra.css
 
 extra:
   social:

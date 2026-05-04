@@ -3,8 +3,8 @@
 The pre-DOCX Microsoft Word binary. Despite being officially superseded
 in 2007, `.doc` files are still in heavy circulation: government records
 archives, enterprise document management systems, decades of email
-attachments. udoc parses them natively — no LibreOffice subprocess, no
-`antiword` shell-out, no Office install required.
+attachments. udoc parses them natively without LibreOffice, antiword,
+or any other system Office install.
 
 ## Why this format is interesting
 
@@ -84,9 +84,9 @@ feature request](https://github.com/newelh/udoc/issues).
 
 Word 97 introduced Unicode support (UCS-2) but kept the legacy 8-bit
 codepage path for backward compatibility. A single document can carry
-text fragments in multiple encodings — half the document in CP-1252,
-half in CP-932 (Shift-JIS) — with the encoding picked per fragment.
-udoc honours the per-fragment encoding metadata via the shared
+text fragments in multiple encodings (e.g. half in CP-1252, half in
+CP-932 / Shift-JIS), with the encoding picked per fragment. udoc
+honours the per-fragment encoding metadata via the shared
 [`CodepageDecoder`](../fonts.md) and falls back to the document's
 declared default codepage when a fragment has no explicit annotation.
 

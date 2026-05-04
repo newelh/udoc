@@ -16,9 +16,9 @@ a recommendation, or build something on top.
    reading order runs four tiers internally. We don't hide failure
    behind one method.
 
-3. **Diagnostics are a feature.** Every recoverable issue flows
-   through `DiagnosticsSink` as a typed warning. Filter on kind, log,
-   or fail the build on them. Silent recovery is its own kind of bug.
+3. **Diagnostics are a feature.** Recoverable issues flow through
+   `DiagnosticsSink` as typed warnings. Pipelines filter on `kind`.
+   Silent recovery is its own kind of bug.
 
 4. **Page-oriented, deferred work.** Backends operate on pages and
    defer expensive work until a caller asks for it.
@@ -29,15 +29,15 @@ a recommendation, or build something on top.
    one audited exception in `udoc_pdf::io::mmap_impl`. New unsafe
    requires a deliberate, reviewable change.
 
-6. **Vertical ownership.** Every parser is in-tree. No subprocesses
+6. **Vertical ownership.** Parsers live in-tree. No subprocesses
    to system tools. When a document does something unusual, the fix
-   lands in our own code.
+   lands in this codebase.
 
 7. **Permissive licence.** Dual MIT / Apache-2.0.
 
 ## The 5-layer document model
 
-Every backend converges on the same `Document` shape:
+Backends converge on a single `Document` shape:
 
 ```python
 doc = udoc.extract("paper.pdf")
@@ -54,7 +54,7 @@ doc.images            # shared image store referenced by Block::Image
 nodes (paragraphs, headings, lists, tables, image references, code
 blocks, page breaks, sections, shapes) hold `Inline` children (text
 spans, bold, italic, links, code, footnote refs, soft and hard
-breaks, inline images). Every node carries a typed `node_id` into the
+breaks, inline images). Each node carries a typed `node_id` into the
 document's arena. Always present. This is what `udoc -t` walks for
 tables, what the markdown emitter renders, and what `block.text`
 returns for plain text.
@@ -63,8 +63,8 @@ returns for plain text.
 producer, creation and modification dates, page count, plus a
 `properties` map for format-specific extended fields (Dublin Core
 from OOXML / ODF cores, PDF Info dictionary entries, OOXML extended
-properties from `app.xml`). Always present, even when every field is
-`None` for documents that didn't carry metadata.
+properties from `app.xml`). Always present, even when all fields
+are `None` for documents that didn't carry metadata.
 
 **`doc.presentation` — geometry overlay.** Where things live on the
 page and how they look. Bounding boxes per block, font name + size +
@@ -92,15 +92,15 @@ fields and DOCX revision marks live here. Documents without any of
 these features carry an empty Interactions; the overlay is
 independently optional via `Config(interactions=False)`.
 
-**`doc.images` — shared image store.** Every `Block::Image` and
+**`doc.images` — shared image store.** Each `Block::Image` and
 `Inline::InlineImage` carries an `ImageRef` index into `doc.images`;
 the actual bitmap bytes plus metadata (width, height, MIME type,
-original filter chain) live once in this `Vec`. Same image referenced
-N times is stored once and referenced N times — important for slide
-decks with repeated logos and DOCX with repeated header images. The
-store is part of the spine, not an overlay; if you want extraction to
-skip image bytes entirely, set `Config(images=False)` (the references
-in the content tree become empty placeholders).
+original filter chain) live once in this `Vec`. An image referenced
+N times is stored once — important for slide decks with repeated
+logos and DOCX with repeated header images. The store is part of
+the spine, not an overlay; if you want extraction to skip image
+bytes entirely, set `Config(images=False)` and the references in
+the content tree become empty placeholders.
 
 Overlays are independently toggleable on the `Config`. Disabling one
 skips the work that produces it; the spine (text, tables, image
@@ -219,10 +219,10 @@ results.
 
 A warning carries:
 
-- a structured `kind` (an enum, not a string);
-- a level (`Warning` or `Info`);
-- a context (`page_index`, `obj_ref`);
-- an optional byte offset;
+- a structured `kind` (an enum, not a string).
+- a level (`Warning` or `Info`).
+- a context (`page_index`, `obj_ref`).
+- an optional byte offset.
 - a human message.
 
 Common kinds you will see in the wild:
@@ -237,4 +237,4 @@ Common kinds you will see in the wild:
 | `TierSelection`           | Reading-order tier picked for this page (Info, not Warning). |
 | `HookTimeout`             | A hook exceeded its per-request timeout; page un-augmented.  |
 
-Agents and CI pipelines filter on `kind`; humans read the message.
+Agents and CI pipelines filter on `kind`. Humans read the message.

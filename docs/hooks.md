@@ -32,6 +32,118 @@ OCR runs first because layout often wants reliable text. Layout runs
 next because annotation often wants regions. Annotation runs last and
 stamps the final structure with metadata.
 
+## When does a hook fire?
+
+The default firing rule is different per phase, and it is worth
+internalising before you wire anything up:
+
+| Phase      | Default firing rule                                                                  |
+|------------|--------------------------------------------------------------------------------------|
+| `ocr`      | Per-page, **only on pages with fewer than 10 extracted whitespace-separated words.** |
+| `layout`   | Per-page, on every page (no gating).                                                 |
+| `annotate` | Per-page, on every page (no gating).                                                 |
+
+OCR is gated because its main job is to recover text that the parser
+could not — running it on a page that already has clean text wastes
+seconds (CPU-bound engines) or dollars (cloud OCR). Layout and
+annotate phases run unconditionally because their consumers (region
+detection, entity extraction) want signal on every page they see.
+
+A separate dispatch mode applies for hooks declaring
+`"needs": ["document"]` in the handshake — those receive one
+whole-document request per extraction instead of one request per
+page. The choice is encoded in the hook's handshake, not on the
+caller side; see [Reference / Hooks protocol / `needs`](reference/hooks.md#needs-array-of-string-required-non-empty).
+
+### Changing the OCR gate
+
+Two knobs control the OCR phase. Both live on `HookConfig` on the
+Rust runner; the CLI exposes the most useful one as `--ocr-all`.
+
+| Knob                       | Default | Effect                                                                 |
+|----------------------------|---------|------------------------------------------------------------------------|
+| `min_words_to_skip_ocr`    | `10`    | Pages with **fewer** words than this are sent to the OCR hook.         |
+| `ocr_all_pages`            | `false` | When `true`, the gate is bypassed and every page goes through OCR.     |
+
+Three common patterns:
+
+```bash
+# Mixed PDF (some pages digital, some scanned). Default behaviour:
+# OCR fires only on the textless inserts.
+udoc --ocr tesseract-hook mixed.pdf
+
+# Whole document is a scan, or you want a sanity-check pass on a
+# digital document. Force OCR on every page.
+udoc --ocr tesseract-hook --ocr-all scanned.pdf
+
+# You suspect the 10-word default is mis-classifying short
+# poetry / business-card / invoice pages as digital. Lower the
+# threshold to 0 (run OCR on textless pages only) or raise it to,
+# say, 50 words to be more aggressive about OCR-ing low-text pages.
+# Available via the Rust HookConfig today; surfacing through Python
+# / CLI is on the roadmap.
+```
+
+From Python, the `udoc.Hooks` config currently exposes the hook
+commands and the per-request timeout; the OCR gate uses the
+defaults. To force OCR on every page from Python today, run the
+CLI as a subprocess with `--ocr-all`, or use the Rust API directly.
+The `Hooks` Python surface will grow these fields in a future
+release without breaking the existing keyword arguments.
+
+<details>
+<summary>Rust equivalent</summary>
+
+```rust
+use udoc::hooks::{HookConfig, HookRunner, HookSpec, Phase};
+
+let mut hook_cfg = HookConfig::default();
+hook_cfg.ocr_all_pages = true;        // bypass the gate
+// or:
+hook_cfg.min_words_to_skip_ocr = 50;  // OCR pages with <50 words
+
+let specs = [HookSpec::new(Phase::Ocr, "tesseract-hook")];
+let runner = HookRunner::new(&specs, hook_cfg)?;
+# Ok::<(), udoc::Error>(())
+```
+</details>
+
+### Changing layout / annotate firing
+
+Layout and annotate phases do not have a built-in gate — they fire
+on every page when configured. If you want them gated, do the
+filtering inside the hook itself: declare `"unsupported"` as the
+error kind for pages you want to skip, and udoc will pass those
+pages through unchanged. See [Errors](#errors) below for the
+semantics; `"unsupported"` is specifically the no-op signal.
+
+A few concrete sketches:
+
+```python
+# In an annotate hook, skip pages with no text content.
+for line in sys.stdin:
+    req = json.loads(line)
+    if not req.get("content"):
+        sys.stdout.write(json.dumps({
+            "seq": req["seq"],
+            "error": {"kind": "unsupported", "message": "empty page"},
+        }) + "\n")
+        sys.stdout.flush()
+        continue
+    # ... do the real work
+```
+
+```python
+# In a layout hook, skip pages that look like cover sheets.
+if is_cover_sheet(req["spans"]):
+    write_unsupported(req["seq"], "cover sheet")
+    continue
+```
+
+The `"unsupported"` path is silent — it does not emit a diagnostic.
+If you want the skip to surface in the diagnostics sink, return a
+no-op success response instead.
+
 ## CLI
 
 ```bash
@@ -52,20 +164,27 @@ line on stdin. The hook writes one JSON response per line on stdout.
 
 ## Library
 
-Using Python
+From Python:
 
 ```python
 import udoc
 
 cfg = udoc.Config(
-    hooks=[
-        udoc.Hook(phase="ocr", command="tesseract-hook"),
-        udoc.Hook(phase="layout", command="doclayout-yolo"),
-    ]
+    hooks=udoc.Hooks(
+        ocr="tesseract-hook",
+        layout="doclayout-yolo",
+        timeout=120,                   # per-request timeout, seconds
+    ),
 )
 doc = udoc.extract("scanned.pdf", config=cfg)
 ```
 
+`udoc.Hooks` accepts one command per phase (`ocr`, `layout`,
+`annotate`); chain multiple hooks within a phase by wrapping them
+in a small dispatcher script that re-emits to the next stage. The
+default OCR gate (10-word threshold) applies; see the
+[firing-rules section](#when-does-a-hook-fire) above for how to
+change it.
 
 <details>
 <summary>Rust equivalent</summary>
@@ -80,6 +199,9 @@ let cfg = udoc::Config::new()
 let doc = udoc::extract_with("scanned.pdf", cfg)?;
 # Ok::<(), udoc::Error>(())
 ```
+
+For chained hooks within a phase, call `.hook(...)` multiple times
+with the same `Phase`.
 </details>
 
 ## A working hook, end to end
@@ -448,3 +570,4 @@ Hooks are the wrong tool when:
   model on `udoc.extract(...).content` directly. Hooks add round-trip
   overhead you do not need.
 - You want a one-shot transformation. Pipe `udoc -j` into your script.
+

@@ -84,21 +84,20 @@ release. Most modules are `#[doc(hidden)]` because they are wired up
 to PDF parsing and renderer details; we keep the ability to refactor
 internals while the document model stabilises.
 
-If you need direct font access, drop into `udoc-pdf::font::loader`
-which exposes the per-page `fonts()` enumeration:
+The CLI exposes per-document font listings:
 
-```python
-import udoc
-
-with udoc.open("paper.pdf") as ext:
-    page = ext.page(0)
-    for font in page.fonts:
-        print(f"{font.name:30s}  {font.kind}  ToUnicode={font.has_tounicode}")
+```bash
+udoc fonts paper.pdf
 ```
 
-The `kind` is one of `TrueType`, `Type1`, `CFF`, `Type3`, or
-`Composite` (Type 0). `has_tounicode` lets you spot pages where
-encoding fallbacks will fire before you even read the spans.
+Output lists each font's name, kind, and ToUnicode status. The
+`kind` is one of `TrueType`, `Type1`, `CFF`, `Type3`, or
+`Composite` (Type 0); the ToUnicode column shows where encoding
+fallbacks will fire before you read the spans.
+
+For programmatic access, drop into `udoc_pdf::font::loader` from
+Rust — the streaming Python wrapper does not currently expose
+per-page font enumeration.
 
 ## Common diagnostics
 

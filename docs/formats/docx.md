@@ -12,8 +12,8 @@ format's reach across decades of Word releases shows up as accumulated
 indirection. A DOCX package is a directory of related XML parts
 (`word/document.xml`, `word/styles.xml`, `word/numbering.xml`,
 `word/footnotes.xml`, plus per-image media files), connected by an
-OPC relationships graph. Resolving anything user-visible — a heading,
-a numbered list item, a hyperlink — usually means walking from the
+OPC relationships graph. Resolving anything user-visible (a heading,
+a numbered list item, a hyperlink) usually means walking from the
 body out through one or two indirections.
 
 The XML itself is verbose. A single styled paragraph in Word becomes
@@ -167,8 +167,8 @@ for i in 0..doc.page_count() {
 ```
 
 The `udoc-docx` backend exposes the parsed `DocxDocument` directly when
-you need format-specific structure access — section trees, raw run
-properties, the resolved numbering tables — beyond what the unified
+you need format-specific structure access (section trees, raw run
+properties, the resolved numbering tables) beyond what the
 `Document` model exposes.
 
 ## See also

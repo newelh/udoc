@@ -1,0 +1,29 @@
+/* udoc theme overrides.
+   Primary banner is mkdocs-material amber.
+   Dark mode shifts the body toward stone grey (Tailwind stone
+   palette) to read as near-black rather than slate blue. */
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color:        #1c1917; /* stone-900 */
+  --md-default-bg-color--light: #292524; /* stone-800 */
+  --md-default-bg-color--lighter: #44403c; /* stone-700 */
+  --md-default-bg-color--lightest: #57534e; /* stone-600 */
+
+  --md-default-fg-color:           #f5f5f4; /* stone-100 */
+  --md-default-fg-color--light:    #d6d3d1; /* stone-300 */
+  --md-default-fg-color--lighter:  #a8a29e; /* stone-400 */
+  --md-default-fg-color--lightest: #78716c; /* stone-500 */
+
+  --md-code-bg-color: #292524;     /* stone-800 */
+  --md-code-fg-color: #e7e5e4;     /* stone-200 */
+
+  --md-typeset-a-color: #ffc107; /* amber 500 — links pop on stone-900 */
+
+  --md-footer-bg-color:       #0c0a09; /* stone-950 */
+  --md-footer-bg-color--dark: #0c0a09;
+}
+
+/* Light-mode links: a darker amber for legibility on white. */
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: #ff8f00; /* amber 800 */
+}
