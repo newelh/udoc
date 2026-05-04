@@ -80,7 +80,7 @@ for the wiring.
 
 ## Table detection
 
-PDF has no first-class table type the way HTML and DOCX do. ISO
+PDF has no native table type the way HTML and DOCX do. ISO
 32000-2 defines a Tagged-PDF structure tree where a `<<S /Table>>`
 element can wrap rows and cells, but tagging is optional and rarely
 complete: most PDFs in circulation are untagged entirely, and even
@@ -156,13 +156,12 @@ shape. Use this to identify pages that took the geometric-reorder
 path and verify the output looks right:
 
 ```python
-warnings = []
-doc = udoc.extract("paper.pdf", diagnostics=warnings.append)
+cfg = udoc.Config(collect_diagnostics=True)
+doc = udoc.extract("paper.pdf", config=cfg)
 
-for w in warnings:
+for w in doc.warnings:
     if w.kind == "TierSelection":
-        print(f"page {w.page}: tier {w.context['tier']} "
-              f"(coherence={w.context.get('coherence', 'n/a')})")
+        print(f"page {w.page_index}: {w.detail}")
 ```
 
 Pages that consistently land in tier 2 with low coherence and where
@@ -179,11 +178,13 @@ those pages and emits a `LikelyScanned` warning when:
 - (Optionally) the OCG / layer dictionaries indicate a scan-only
   layer.
 
-To enable OCR globally, attach an OCR hook with `--ocr <command>`
-(see [hooks](../hooks.md)). To do it conditionally — most pages have
-text, only some need OCR — use `--ocr-all` to force OCR on every
-page or write a layout-stage decision hook that inspects the page
-and chooses. Recipes are in [PDF rendering & OCR](../render.md).
+To enable OCR, attach a hook with `--ocr <command>` (see
+[hooks](../hooks.md)). By default OCR fires only on pages with
+fewer than 10 extracted words, so mixed digital/scanned documents
+work without further configuration. Pass `--ocr-all` to force OCR
+on every page. For finer control, write a layout-stage decision
+hook that inspects the page and chooses. Recipes are in [PDF
+rendering & OCR](../render.md).
 
 ## Escape hatches
 
@@ -192,20 +193,15 @@ When the facade is not enough, drop down a level:
 ```python
 import udoc
 
-with udoc.open("paper.pdf") as ext:
-    page = ext.page(0)
-
-    # Raw spans, content-stream order, no ordering heuristic.
-    for span in page.raw_spans:
-        print(f"({span.x:.1f},{span.y:.1f}) {span.text}")
-
-    # Bounding box of the page.
-    print(page.media_box)
-
-    # All declared fonts on this page.
-    for font in page.fonts:
-        print(f"{font.name} ({font.kind})")
+with udoc.stream("paper.pdf") as ext:
+    # Raw spans, content-stream order, no reading-order heuristic.
+    for text, x, y, w, h in ext.page_spans(0):
+        print(f"({x:.1f},{y:.1f}) {text}")
 ```
+
+For per-page font tables and page geometry, fall back to the Rust
+`udoc-pdf` API (below) — those surfaces are not exposed on the
+streaming Python wrapper.
 
 <details>
 <summary>Rust: drop into <code>udoc-pdf</code> directly</summary>
@@ -266,16 +262,16 @@ resolution.
 To skip overlays and shave 5-15%:
 
 ```python
-doc = udoc.extract("paper.pdf",
-    presentation=False, relationships=False, interactions=False)
+cfg = udoc.Config(layers=udoc.LayerConfig(
+    presentation=False, relationships=False, interactions=False))
+doc = udoc.extract("paper.pdf", config=cfg)
 ```
 
-To skip table detection (15-20% of extraction time on
-table-heavy documents):
-
-```python
-doc = udoc.extract("paper.pdf", tables=False)
-```
+To skip image extraction on image-heavy documents, set
+`AssetConfig(images=False)` on the same `Config`. Table detection
+is on the Rust facade's roadmap to expose as a Python toggle; for
+now, skip it by ignoring the `Block::Table` variants when walking
+the document.
 
 ## Common diagnostics
 

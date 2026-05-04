@@ -1,12 +1,10 @@
 # Compiling from source
 
 A pre-built wheel is the supported install path: it lays down both the
-CLI binary and the Python module, no toolchain required. While the
-`udoc` name on PyPI is being secured, install via the project's PEP
-503 index:
+CLI binary and the Python module, no toolchain required.
 
 ```bash
-pip install udoc --index-url https://newelh.github.io/udoc/simple/
+pip install udoc
 ```
 
 This page is for the cases where you want to build the wheel
@@ -21,7 +19,9 @@ yourself.
 - **A C linker** — whatever `cc` or `clang` your platform expects.
   No further C dependencies.
 
-udoc has zero native runtime dependencies. No `libpoppler`, no `libfreetype`, no Office install, and no system fonts. Everything required for extraction lives inside the binary.
+udoc has zero native runtime dependencies. No `libpoppler`,
+`libfreetype`, Office install, or system fonts required.
+Everything for extraction lives inside the binary.
 
 ## Clone
 
@@ -57,7 +57,7 @@ udoc --version
 
 `maturin develop` compiles the Rust extension into a `.so` (or
 `.pyd` on Windows) and installs it into the active virtualenv along
-with the bundled CLI binary. Re-run after changes; the build is
+with the bundled CLI binary. Re-run after changes. The build is
 incremental.
 
 For a distributable wheel:
@@ -134,8 +134,8 @@ broken commit by accident.
 The Rust side cross-compiles cleanly with the standard
 `cargo build --target=...` once you have the platform's linker on
 your `$PATH`. For macOS-from-Linux, [`cargo-zigbuild`](https://github.com/rust-cross/cargo-zigbuild)
-is the path of least resistance; for Windows, the Rust `x86_64-pc-windows-gnu`
-target works under MinGW.
+is the path of least resistance. For Windows, the Rust
+`x86_64-pc-windows-gnu` target works under MinGW.
 
 For the Python wheel side, `maturin build --target=...` does the
 right thing once the Rust target is installed. cibuildwheel hides
@@ -163,12 +163,11 @@ cargo doc --workspace --no-deps --open
 
 ## crates.io
 
-udoc is not on crates.io for the alpha period. Distribution is via
-the PEP 503 index above; PyPI publishing follows once the project
-name is secured. Per-crate publishing to crates.io — `udoc`,
-`udoc-core`, `udoc-pdf`, and the per-format backends as independent
-dependencies — lands at beta, once the public API has stabilised
-across at least one external integration.
+udoc is not on crates.io for the alpha period. Distribution is
+via PyPI (`pip install udoc`). Per-crate publishing to crates.io
+(`udoc`, `udoc-core`, `udoc-pdf`, and the per-format backends as
+independent dependencies) lands at beta, once the public API has
+stabilised across at least one external integration.
 
 If you need the Rust API in the meantime, depend on the workspace by
 git path:

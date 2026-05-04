@@ -51,50 +51,42 @@ alone is not enough.
 ## Triggering OCR
 
 PDFs that are scans rather than digitally-generated have no text in
-the content stream — only images. A few patterns:
+the content stream — only images. There are two firing modes for
+the OCR hook:
 
 ```python
-# Force OCR on every page. Right when you know the input is a scan.
+# Mixed input: most pages digital, some scanned (insurance forms,
+# legal exhibits, government archives). Default behaviour: OCR
+# fires only on pages with fewer than 10 words of extracted text.
 import udoc
 
 cfg = udoc.Config(
-    hooks=[udoc.Hook(phase="ocr", command="tesseract-hook", every_page=True)],
-)
-doc = udoc.extract("scanned.pdf", config=cfg)
-```
-
-```python
-# OCR only the pages udoc thinks are scans. Right for mixed inputs
-# where most pages are digital and some are scanned (insurance forms,
-# legal exhibits, government archives).
-cfg = udoc.Config(
-    hooks=[udoc.Hook(phase="ocr", command="tesseract-hook")],
+    hooks=udoc.Hooks(ocr="tesseract-hook"),
 )
 doc = udoc.extract("mixed.pdf", config=cfg)
 ```
 
-When `every_page` is not set, the hook only fires on pages udoc has
-flagged as likely scanned. The flag fires when:
-
-- The page has at least one large image (more than 50% of page area).
-- Fewer than five text spans extracted.
-- Optionally, the OCG / layer dictionary indicates a scan-only layer.
-
-Pages that meet the criteria emit a `LikelyScanned` info-level
-warning before the hook decision, so you can audit detection
-afterward:
-
-```python
-warnings = []
-doc = udoc.extract("mixed.pdf", config=cfg, diagnostics=warnings.append)
-scanned_pages = {w.page for w in warnings if w.kind == "LikelyScanned"}
-print(f"OCR fired on pages: {sorted(scanned_pages)}")
+```bash
+# Whole document is a scan, or you want a sanity-check pass on a
+# digital document. Force OCR on every page.
+udoc --ocr tesseract-hook --ocr-all scanned.pdf
 ```
 
-If autodetection misses a scan udoc thought was digital, force OCR
-with `every_page=True` and re-extract; if it fires false-positives
-on a digital page that happens to have a big image, attach the hook
-with a custom predicate via the layout phase to gate it.
+The default firing rule is "OCR pages with fewer than 10
+whitespace-separated words of extracted text." The threshold lives
+on `HookConfig.min_words_to_skip_ocr` on the Rust runner;
+`HookConfig.ocr_all_pages` (CLI: `--ocr-all`) bypasses the gate
+entirely. The Python `udoc.Hooks` config currently uses the
+defaults; force-on-every-page from Python today by shelling out to
+`udoc --ocr ... --ocr-all` or using the Rust API directly.
+
+Layout and annotate hooks fire on every page when configured, with
+no equivalent gate. To skip pages from inside a layout / annotate
+hook, return `{"error": {"kind": "unsupported", ...}}` for the
+sequence — udoc passes those pages through unchanged.
+
+The full firing-rules table and the knobs that change them live in
+[Hooks / When does a hook fire?](hooks.md#when-does-a-hook-fire).
 
 ## Resolution choice
 
@@ -153,7 +145,3 @@ Rendering is viewer-grade, not pixel-equal-to-Acrobat. Specifically:
 - **Transparency.** Alpha compositing is supported; some
   transparency-group corner cases (knockout groups with
   isolated alpha) emit warnings and degrade.
-
-For pixel-perfect output, MuPDF or Acrobat are the reference
-implementations. udoc rendering targets "looks right to a human" and
-"good enough for OCR / layout models", in that order.

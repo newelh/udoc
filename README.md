@@ -1,60 +1,78 @@
 # udoc
 
-A unified document extraction toolkit. `udoc paper.pdf` is to a PDF
-what `cat paper.txt` is to a text file: clean text on stdout, ready
-to pipe through `grep`, `less`, `wc`, or `jq`. Tables, JSON, rendered
-pages, and OCR hooks come along when you reach for them. Twelve
-formats are supported: PDF, Microsoft Office (including legacy `.doc` / `.xls` /
-`.ppt`), OpenDocument, RTF, and Markdown.
+A document extraction toolkit for PDF, DOCX, DOC, XLSX, XLS, PPTX,
+PPT, ODT, ODS, ODP, RTF, and Markdown. udoc emits text, tables,
+JSON, or rendered pages. A CLI and Python module wrap a pure Rust
+binary. No external parsers, libraries, or system packages are required.
+Provides [hooks](docs/hooks.md) for OCR, layout detection, and
+entity extraction. Permissively licensed as dual MIT / Apache-2.0.
 
 ---
 
-Read the abstract of "Attention Is All You Need" straight from
-arxiv using [uv](https://docs.astral.sh/uv/), no install required:
+Try it out using [uv](https://docs.astral.sh/uv/), no install required:
 
 ```bash
-curl -sL https://arxiv.org/pdf/1706.03762 \
-  | uvx --index-url https://newelh.github.io/udoc/simple/ udoc - \
-  | grep -A 18 '^Abstract'
+curl -sL https://arxiv.org/pdf/1706.03762 | uvx udoc - | grep -A 18 '^Abstract'
 ```
-
-[`uvx`](https://docs.astral.sh/uv/) runs udoc in an ephemeral
-environment; the rest is plain shell. The same shape works for any
-document and any tool you'd reach for on a text file (`less`, `wc`,
-`jq`, `sed`, `awk`); swap the URL for any PDF, DOCX, XLSX, PPTX,
-ODF, RTF, or Markdown file you have at hand.
 
 ## Install
 
-While the `udoc` name on PyPI is being secured, wheels are served
-from a [PEP 503](https://peps.python.org/pep-0503/) simple index
-hosted on this repo's GitHub Pages. Once `udoc` is on PyPI the
-`--index-url` flag goes away.
-
 ```bash
-uv pip install udoc --index-url https://newelh.github.io/udoc/simple/
+pip install udoc
 ```
 
-That lays down both the `udoc` command-line tool and the `udoc`
-Python module. They share one engine; the Python module is a thin
-PyO3 wrapper over the same binary. Plain `pip` works too if you set
-the same flag: `pip install udoc --index-url https://newelh.github.io/udoc/simple/`.
+`uv pip install udoc` works the same way. This puts the `udoc`
+command-line tool and the `udoc` Python module on your system;
+both call one Rust binary. To build from source, see
+[Compiling from source](docs/compiling.md).
 
-## Quick examples
+## Highlights
 
-### Python
+- **One `Document` model across formats.** A content spine of `Block` and `Inline` nodes, plus optional [presentation, relationships, and interactions overlays](docs/reference/document-model.md). Disable any overlay via `Config`.
+- **Legacy binary Office.** Native parsers for `.doc`, `.xls`, and `.ppt`. Per-format details in the [format guides](docs/formats/).
+- **Streaming page-by-page.** The `Extractor` defers per-page work. A 10 GB PDF does not have to fit in memory.
+- **Typed diagnostics.** Recoverable issues become structured warnings filterable by `kind`. Examples: font fallbacks, malformed `xref`, stream-length mismatches.
+- **Hooks for OCR, layout, and annotation.** [JSONL protocol](docs/hooks.md) for Tesseract, cloud OCR APIs, DocLayout-YOLO, GLM-OCR, vision-language models, NER, or any subprocess that reads JSON line-by-line.
+- **LLM tool use.** [Agent instructions](docs/agents.md) — a paste-into-context page describing udoc's CLI to assistants.
+
+## CLI
+
+```bash
+udoc paper.pdf                     # text to stdout
+udoc -j paper.pdf                  # full document as JSON
+udoc -J paper.pdf                  # streaming JSONL (one record per page)
+udoc -t spreadsheet.xlsx           # tables only as TSV
+udoc -p 1-5,10 paper.pdf           # page range
+udoc render paper.pdf -o ./pages   # rasterise PDF pages to PNG
+cat paper.pdf | udoc -             # read from stdin
+```
+
+A few real-world piping recipes:
+
+```bash
+curl -sL https://arxiv.org/pdf/1706.03762 | udoc - | head -40
+udoc paper.pdf | grep -i 'attention'
+udoc -J docs/*.pdf | jq '.metadata.title'
+```
+
+Plain text on stdout. Structured output on flags. Stderr is
+silent unless you pass `-v`. The full flag list lives in the
+[CLI reference](docs/cli.md).
+
+## Python
 
 ```python
 import udoc
 
 # One-shot extraction. Format detected from magic bytes.
 doc = udoc.extract("paper.pdf")
-for block in doc.content:
+print(doc.metadata.title)
+for block in doc.blocks():
     print(block.text)
 
-# Stream page by page; large documents never need to fit in memory.
-with udoc.open("large.pdf") as ext:
-    for i in range(ext.page_count):
+# Stream page by page; large documents do not have to fit in memory.
+with udoc.stream("large.pdf") as ext:
+    for i in range(len(ext)):
         print(f"page {i}: {ext.page_text(i)[:80]}")
 
 # In-memory bytes with options.
@@ -62,93 +80,36 @@ with open("encrypted.pdf", "rb") as f:
     doc = udoc.extract_bytes(f.read(), password="secret")
 ```
 
-### CLI
+PDF table detection and reading order are heuristic. Born-digital
+documents with clean ruling and standard column flow extract
+cleanly out of the box; the [PDF format
+guide](docs/formats/pdf.md) covers the failure modes and when to
+attach a [layout-detection or OCR hook](docs/formats/pdf.md#triggering-ocr).
 
-```bash
-udoc paper.pdf                  # text to stdout
-udoc -j paper.pdf               # full document as JSON
-udoc -J paper.pdf               # streaming JSONL (one record per page)
-udoc -t spreadsheet.xlsx        # tables only as TSV
-udoc -p 1-5 paper.pdf           # pages 1 through 5
-udoc render paper.pdf -o ./out  # rasterise PDF pages to PNG
+The [Guide](docs/library.md) walks through configuration,
+overlays, diagnostics, chunking, and batch processing. The
+[Python Library reference](docs/reference/python.md) lists every
+function, class, and exception.
 
-curl -sL https://arxiv.org/pdf/1706.03762 | udoc -
-udoc paper.pdf | grep -i 'attention'
-udoc -J docs/*.pdf | jq '.metadata.title'
+## Rust
+
+```rust
+let doc = udoc::extract("paper.pdf")?;
+println!("{:?}", doc.metadata.title);
+for block in &doc.content {
+    println!("{}", block.text());
+}
+# Ok::<(), udoc::Error>(())
 ```
 
-PDF table detection and reading order are heuristic — born-digital
-documents with clean ruling and standard column layouts come through
-cleanly; scans, dense unruled tables, and unusual layouts may need a
-layout-detection or OCR hook. The [PDF format
-guide](docs/formats/pdf.md) covers the strategies and failure modes.
-
-## Documentation
-
-- [Quick start](docs/quickstart.md) — five minutes from install to first extraction.
-- [Compiling from source](docs/compiling.md) — for when you'd rather build the wheel yourself.
-- [CLI reference](docs/cli.md) — every flag, every subcommand, piping recipes.
-- [Library guide](docs/library.md) — the Python API and the document model.
-- [Hooks and LLM integration](docs/hooks.md) — JSONL hook protocol with worked examples.
-- [Agent instructions](docs/agents.md) — paste-into-context guide for assistants.
-- [Per-format guides](docs/formats/) — quirks and escape hatches for each supported format.
-- [Font engine](docs/fonts.md), [Image decoders](docs/images.md),
-  [PDF rendering & OCR](docs/render.md) — the vertical primitives.
-- [Architecture](docs/architecture.md) — the document model, design tenets,
-  performance.
-- [Security and unsafe audit](docs/security.md).
+The Rust facade mirrors the Python shape. `Document` is
+`udoc_core::document::Document`; iteration is by direct field
+access (`doc.content`, `doc.metadata`, `doc.images`). The
+[Rust Library reference](docs/reference/rust.md) covers the
+facade, the per-format backends, configuration presets,
+diagnostics, and the trait that backends implement.
 
 The full hosted manual lives at <https://newelh.github.io/udoc>.
-
-## Document model
-
-Every extracted document, regardless of format, has the same shape:
-
-```python
-doc = udoc.extract("paper.pdf")
-
-doc.metadata          # title, author, page_count, created, ...
-doc.content           # list of Block — paragraphs, headings, tables, lists, images
-doc.presentation      # bounding boxes, fonts, colours (optional overlay)
-doc.relationships     # footnotes, links, bookmarks (optional overlay)
-doc.interactions      # form fields, comments, tracked changes (optional overlay)
-doc.images            # shared image store referenced by Block::Image
-```
-
-Overlays are independently toggleable via `Config`; callers that only need
-text pay nothing for geometry, styling, or relationships.
-
-## Hooks
-
-Hooks are external programs that participate in extraction over a JSONL
-subprocess protocol. Three phases — **OCR** (text from images), **layout**
-(semantic regions), and **annotate** (entity / metadata enrichment) — chain
-together. Anything that can read and write JSON line by line can plug in.
-
-```bash
-udoc --ocr "tesseract-hook" scanned.pdf
-```
-
-The [hooks chapter](docs/hooks.md) has the protocol, security notes,
-async/long-running patterns, and recipes for Tesseract, GLM-OCR,
-DeepSeek-OCR, layout models, and entity extractors.
-
-## What udoc does well
-
-- **Twelve formats from one tool.** PDF, DOCX, XLSX, PPTX, DOC, XLS,
-  PPT, ODT, ODS, ODP, RTF, Markdown — including the legacy 1997-era
-  binary Office formats that everyone forgets are still in production
-  archives.
-- **Streams.** Open a 10 GB PDF, pull pages as you need them. The
-  document model does not require loading everything up front.
-- **Diagnostics as a feature.** Recoverable issues are reported as
-  structured warnings on a `DiagnosticsSink`, not stderr noise. Filter,
-  log, or fail the build on them.
-- **Built for agents.** A documented JSONL hook protocol lets you wire
-  OCR, layout detection, and entity extraction in front of the
-  extractor. The [agent instructions](docs/agents.md) chapter is a
-  paste-into-context guide for assistants using udoc as a tool.
-- **Permissive licence.** Dual MIT / Apache-2.0.
 
 ## Status
 

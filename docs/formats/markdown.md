@@ -155,6 +155,6 @@ for i in 0..doc.page_count() {
 
 - For a richer Markdown parser with full math / Pandoc / MyST
   support, the Markdown ecosystem has many specialised
-  implementations. udoc's parser optimises for "produce a uniform
-  Document model alongside the other formats" rather than for
-  Markdown-specific fidelity.
+  implementations. udoc's parser optimises for producing a
+  `Document` alongside the other formats, not Markdown-specific
+  fidelity.

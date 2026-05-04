@@ -176,8 +176,7 @@ for sheet in doc.sheets() {
 
 `XlsxDocument` exposes the typed `Cell` enum directly so callers can
 distinguish a number-that-displays-as-currency from a string. The
-unified `Document` model collapses everything to text in the table
-cell.
+`Document` model collapses everything to text in the table cell.
 
 ## See also
 

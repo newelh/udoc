@@ -68,11 +68,11 @@ it walks backwards through the chain of prior UserEditAtoms until it
 has the full PersistDirectory, then resolves each persist ID to the
 current record offset.
 
-If the PersistDirectory chain is corrupt — UserEditAtom pointing at
-itself, persist IDs out of range, the chain not terminating — udoc
-emits a warning and falls back to a forward scan that picks the *last*
-occurrence of each record type. The text usually comes through; the
-slide order may not.
+If the PersistDirectory chain is corrupt (UserEditAtom pointing at
+itself, persist IDs out of range, the chain not terminating), udoc
+emits a warning and falls back to a forward scan that picks the
+*last* occurrence of each record type. The text usually comes
+through; the slide order may not.
 
 ### Records can be revised without removal
 
@@ -94,7 +94,7 @@ distinction and decodes both transparently.
 PowerPoint 97, 2000, 2002, and 2003 each added record types and
 occasionally repurposed existing ones. The differences are documented
 in Microsoft's `[MS-PPT]` reference. udoc supports the records
-present in production-grade `.ppt` files; PowerPoint 4.0-era binaries
+present in real-world `.ppt` files. PowerPoint 4.0-era binaries
 (pre-PPT-97) are not supported.
 
 ## Layers within udoc-ppt

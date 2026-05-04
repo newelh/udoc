@@ -4,7 +4,7 @@ The pre-XLSX Microsoft Excel binary format. BIFF8 record stream
 inside a CFB container. Still encountered in financial archives,
 older bank statements, and documents from systems that have not
 upgraded their export pipelines in two decades. udoc reads them
-natively — no Office install, no LibreOffice subprocess.
+natively, without an Office install or LibreOffice subprocess.
 
 ## Why this format is interesting
 
@@ -26,15 +26,15 @@ Two structural quirks make BIFF parsing genuinely awkward:
 2. **Variable-length records.** Most records do not have a fixed
    layout: the byte interpretation depends on flag bits earlier in
    the same record. A `LABELSST` cell record contains a row, column,
-   format index, and shared-string index — five fields, twelve bytes
-   — but a generic `LABEL` record contains a row, column, format
-   index, length, encoding flag, and length-bytes-of-text, with
-   length-encoded-or-unicode driven by the flag.
+   format index, and shared-string index (compact, twelve bytes).
+   A generic `LABEL` record contains a row, column, format index,
+   length, encoding flag, and length-bytes-of-text, with the
+   length-encoded-or-unicode treatment driven by the flag.
 
 Like its `.doc` sibling, XLS is essentially a tiny on-disk database
-of typed records, and parsing means reading the records in order while
-maintaining state (which sheet is current? what's the active codepage?
-what's in the shared-string table so far?).
+of typed records, and parsing means reading the records in order
+while maintaining state about the current sheet, the active
+codepage, and the running shared-string table.
 
 ## What you get
 

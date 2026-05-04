@@ -65,8 +65,8 @@ includes:
 - ZIP central-directory lookups (keyed by entry path from the archive).
 
 `HashMap` keyed by integers we generate ourselves (`NodeId` arena
-indices, internal IDs) uses `FxHash` for speed. The split is intentional
-— ahash on internally-generated keys is wasted CPU; FxHash on
+indices, internal IDs) uses `FxHash` for speed. ahash on
+internally-generated keys is wasted CPU. FxHash on
 attacker-controlled keys is a footgun.
 
 ## Resource budgets

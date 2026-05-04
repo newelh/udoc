@@ -10,8 +10,8 @@ udoc [OPTIONS] <FILE>
 udoc <SUBCOMMAND> [OPTIONS] <FILE>
 ```
 
-Pass `-` for `<FILE>` to read from stdin. Output goes to stdout by default;
-pass `-o` to write to a file.
+Pass `-` for `<FILE>` to read from stdin. Output goes to stdout by default.
+Pass `-o` to write to a file.
 
 ## Output modes
 
@@ -33,15 +33,14 @@ language-model worker without loading the full document.
 > **Heuristic extraction on PDFs.** `-t` (tables) and reading-order
 > reconstruction on PDFs are best-effort without help from OCR or
 > layout detection. Born-digital PDFs with ruled tables and clean
-> single-column or two-column flow extract cleanly; scans, dense
-> unruled tables, rotated headers, and broken-but-correct producers
-> can disagree with udoc's defaults. For hard cases, attach a
-> layout-detection or OCR hook
-> (`udoc --layout doclayout-yolo paper.pdf`,
-> `udoc --ocr tesseract-hook scanned.pdf`). Background and the
-> failure modes worth knowing about live in the
-> [PDF format guide](formats/pdf.md#table-detection) and
-> [PDF rendering & OCR](render.md).
+> single- or two-column flow extract cleanly. Scans, dense unruled
+> tables, rotated headers, and broken-but-correct producers can
+> disagree with udoc's defaults. For hard cases, attach a
+> layout-detection or OCR hook (`udoc --layout doclayout-yolo
+> paper.pdf`, `udoc --ocr tesseract-hook scanned.pdf`). Background
+> and failure modes live in the [PDF format
+> guide](formats/pdf.md#table-detection) and [PDF rendering &
+> OCR](render.md).
 
 ## Common options
 
@@ -77,7 +76,7 @@ udoc --version
 
 ## Exit codes
 
-Stable across releases; agents and shell pipelines can rely on them:
+Stable across releases. Agents and shell pipelines can rely on them:
 
 | Code | Meaning                                         |
 |------|-------------------------------------------------|
@@ -145,12 +144,11 @@ A format-detection failure is exit code `3` with a structured error.
 
 ## Diagnostics on stderr
 
-By default, stderr is silent. The recoveries that happen routinely
-during extraction — font fallbacks, malformed-xref recovery, stream-
-length scans, table-detection skips on edge cases — fire as structured
-warnings into the diagnostics sink, but the CLI swallows them so the
-common case (`udoc paper.pdf | grep ...`, `| less`, `| wc`) just shows
-the document.
+By default, stderr is silent. Routine recoveries (font fallbacks,
+malformed-xref recovery, stream-length scans, table-detection
+skips on edge cases) fire as structured warnings into the
+diagnostics sink. The CLI swallows them so the common case (`udoc
+paper.pdf | grep ...`, `| less`, `| wc`) just shows the document.
 
 Pass `-v` to print warnings, or `-vv` to also print info-level progress
 (font loads, ToUnicode resolution, per-page reading-order tier).
